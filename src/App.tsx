@@ -1,31 +1,45 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { ThemeProvider } from "./context/ThemeContext";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
-import SignInPage from "./app/sign-in/page";
-import SignUpPage from "./app/sign-up/page";
-import ProfilePage from "./app/profile/page";
-import DashboardPage from "./app/dashboard/page";
-import NewThreadPage from "./app/new-thread/page";
+import SignInPage from "./pages/SignInPage";
+import SignUpPage from "./pages/SignUpPage";
+import ProfilePage from "./pages/ProfilePage";
+import DashboardPage from "./pages/DashboardPage";
+import { ThemeProvider } from "./context/ThemeContext";
+import "./App.css";
 
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <Router>
-          <div className="App">
-            <Header />
-            <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/sign-in" element={<SignInPage />} />
-              <Route path="/sign-up" element={<SignUpPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/new-thread" element={<NewThreadPage />} />
-            </Routes>
-          </div>
-        </Router>
-      </AuthProvider>
+      <BrowserRouter>
+        <div className="App">
+          <Header />
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <header className="App-header">
+                  <p>
+                    Edit <code>src/App.tsx</code> and save to reload.
+                  </p>
+                  <a
+                    className="App-link"
+                    href="https://reactjs.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Learn React
+                  </a>
+                </header>
+              }
+            />
+            <Route path="/signin" element={<SignInPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }

@@ -2,16 +2,18 @@ import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
-  TextField,
+  InputBase,
   List,
   ListItem,
   ListItemText,
   IconButton,
   Typography,
-  Box,
   Switch,
+  Box,
+  Divider,
+  alpha,
+  styled,
   FormControlLabel,
-  InputAdornment,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
@@ -22,62 +24,80 @@ interface SearchModalProps {
   onClose: () => void;
 }
 
+const SearchInputContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(1, 2),
+  backgroundColor: alpha(theme.palette.common.black, 0.05),
+  borderRadius: theme.shape.borderRadius,
+  marginBottom: theme.spacing(2),
+}));
+
 const SearchModal: React.FC<SearchModalProps> = ({ open, onClose }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
+  const [query, setQuery] = useState("");
+  const [keywords, setKeywords] = useState<string[]>([]);
   const [showKeywords, setShowKeywords] = useState(true);
 
+  // Load keywords from local storage on mount
   useEffect(() => {
-    const storedKeywords = localStorage.getItem("recentKeywords");
+    const storedKeywords = localStorage.getItem("searchKeywords");
     if (storedKeywords) {
-      setRecentKeywords(JSON.parse(storedKeywords));
+      setKeywords(JSON.parse(storedKeywords));
     }
   }, []);
 
-  const handleSearch = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && searchTerm.trim()) {
-      const newKeywords = [
-        searchTerm,
-        ...recentKeywords.filter((k) => k !== searchTerm),
-      ].slice(0, 5);
-      setRecentKeywords(newKeywords);
-      localStorage.setItem("recentKeywords", JSON.stringify(newKeywords));
-      setSearchTerm("");
-      // Perform search action here
-      console.log("Searching for:", searchTerm);
+  // Save keywords to local storage whenever they change
+  useEffect(() => {
+    localStorage.setItem("searchKeywords", JSON.stringify(keywords));
+  }, [keywords]);
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && query.trim()) {
+      if (!keywords.includes(query.trim())) {
+        setKeywords([query.trim(), ...keywords].slice(0, 10)); // Keep last 10
+      }
+      // Perform search action here (e.g., navigate to results)
+      console.log("Searching for:", query);
+      setQuery("");
+      onClose();
     }
   };
 
   const handleDeleteKeyword = (keywordToDelete: string) => {
-    const newKeywords = recentKeywords.filter((k) => k !== keywordToDelete);
-    setRecentKeywords(newKeywords);
-    localStorage.setItem("recentKeywords", JSON.stringify(newKeywords));
+    setKeywords(keywords.filter((k) => k !== keywordToDelete));
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      PaperProps={{
+        sx: {
+          position: "absolute",
+          top: 50,
+          m: 0,
+          borderRadius: 2,
+          minHeight: "40vh",
+        },
+      }}
+    >
       <DialogContent>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <TextField
-            autoFocus
-            fullWidth
+        <SearchInputContainer>
+          <SearchIcon color="action" sx={{ mr: 1 }} />
+          <InputBase
             placeholder="Search..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            fullWidth
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleSearch}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-            variant="outlined"
           />
-          <IconButton onClick={onClose} sx={{ ml: 1 }}>
+          <IconButton size="small" onClick={onClose}>
             <CloseIcon />
           </IconButton>
-        </Box>
+        </SearchInputContainer>
 
         <Box
           sx={{
@@ -93,47 +113,48 @@ const SearchModal: React.FC<SearchModalProps> = ({ open, onClose }) => {
           <FormControlLabel
             control={
               <Switch
+                size="small"
                 checked={showKeywords}
                 onChange={(e) => setShowKeywords(e.target.checked)}
-                size="small"
               />
             }
-            label="Show"
+            label={<Typography variant="caption">Show History</Typography>}
           />
         </Box>
 
+        <Divider />
+
         {showKeywords && (
           <List>
-            {recentKeywords.map((keyword) => (
-              <ListItem
-                key={keyword}
-                secondaryAction={
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={() => handleDeleteKeyword(keyword)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                }
-                sx={{
-                  "&:hover": {
-                    bgcolor: "action.hover",
-                  },
-                }}
-              >
-                <ListItemText primary={keyword} />
+            {keywords.length === 0 ? (
+              <ListItem>
+                <ListItemText
+                  primary="No recent searches"
+                  sx={{ color: "text.secondary", fontStyle: "italic" }}
+                />
               </ListItem>
-            ))}
-            {recentKeywords.length === 0 && (
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                align="center"
-                sx={{ py: 2 }}
-              >
-                No recent searches
-              </Typography>
+            ) : (
+              keywords.map((keyword, index) => (
+                <ListItem
+                  key={index}
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleDeleteKeyword(keyword)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  }
+                  sx={{
+                    "&:hover": {
+                      backgroundColor: "action.hover",
+                    },
+                  }}
+                >
+                  <ListItemText primary={keyword} />
+                </ListItem>
+              ))
             )}
           </List>
         )}

@@ -13,100 +13,111 @@ import {
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import CommentIcon from "@mui/icons-material/Comment";
-import ShareIcon from "@mui/icons-material/Share";
-import Comments from "./Comments";
-
-export interface ThreadData {
-  id: string;
-  author: string;
-  avatarUrl?: string;
-  content: string;
-  likes: number;
-  commentCount: number;
-  timestamp: string;
-}
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Comments from "./Comments"; // We will create this next
 
 interface ThreadItemProps {
-  thread: ThreadData;
+  id: number;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  content: string;
+  initialLikes: number;
+  initialComments: number;
 }
 
-const ThreadItem: React.FC<ThreadItemProps> = ({ thread }) => {
+const ThreadItem: React.FC<ThreadItemProps> = ({
+  id,
+  author,
+  content,
+  initialLikes,
+  initialComments,
+}) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isHoveringFollow, setIsHoveringFollow] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(thread.likes);
-  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(initialLikes);
+  const [expanded, setExpanded] = useState(false);
 
   const handleFollowClick = () => {
     setIsFollowing(!isFollowing);
+    setIsHoveringFollow(false); // Reset hover state on click
   };
 
   const handleLikeClick = () => {
-    if (isLiked) {
-      setLikeCount(likeCount - 1);
-    } else {
-      setLikeCount(likeCount + 1);
+    setLiked(!liked);
+    setLikesCount((prev) => (liked ? prev - 1 : prev + 1));
+  };
+
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
+
+  const getFollowButtonText = () => {
+    if (isFollowing) {
+      return isHoveringFollow ? "Unfollow" : "Following";
     }
-    setIsLiked(!isLiked);
+    return "Follow";
   };
 
   return (
-    <Card sx={{ mb: 2 }}>
+    <Card sx={{ maxWidth: 600, width: "100%", mb: 2 }}>
       <CardHeader
         avatar={
-          <Avatar aria-label="recipe" src={thread.avatarUrl}>
-            {thread.author[0]}
+          <Avatar src={author.avatar} aria-label="recipe">
+            {author.name[0]}
           </Avatar>
         }
         action={
-          <Button
-            variant={isFollowing ? "outlined" : "text"}
-            color={isFollowing && isHoveringFollow ? "error" : "primary"}
-            onClick={handleFollowClick}
-            onMouseEnter={() => setIsHoveringFollow(true)}
-            onMouseLeave={() => setIsHoveringFollow(false)}
-            size="small"
-          >
-            {isFollowing
-              ? isHoveringFollow
-                ? "Unfollow"
-                : "Following"
-              : "Follow"}
-          </Button>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Button
+              variant={isFollowing ? "outlined" : "text"}
+              color={isFollowing ? "secondary" : "primary"}
+              onClick={handleFollowClick}
+              onMouseEnter={() => setIsHoveringFollow(true)}
+              onMouseLeave={() => setIsHoveringFollow(false)}
+              sx={{ mr: 1, minWidth: 100 }}
+            >
+              {getFollowButtonText()}
+            </Button>
+            <IconButton aria-label="settings">
+              <MoreVertIcon />
+            </IconButton>
+          </Box>
         }
-        title={thread.author}
-        subheader={thread.timestamp}
+        title={author.name}
+        subheader="2 hours ago" // Mock timestamp
       />
       <CardContent>
-        <Typography variant="body1" color="text.secondary">
-          {thread.content}
+        <Typography variant="body1" color="text.primary">
+          {content}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites" onClick={handleLikeClick}>
-          {isLiked ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+        <IconButton
+          aria-label="add to favorites"
+          onClick={handleLikeClick}
+          color={liked ? "error" : "default"}
+        >
+          {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
         </IconButton>
         <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
-          {likeCount} likes
+          {likesCount} likes
         </Typography>
-        <IconButton
-          aria-label="comment"
-          onClick={() => setCommentsOpen(!commentsOpen)}
-        >
-          <CommentIcon />
+
+        <IconButton aria-label="comment" onClick={handleExpandClick}>
+          <ChatBubbleOutlineIcon />
         </IconButton>
         <Typography variant="body2" color="text.secondary">
-          {thread.commentCount} comments
+          {initialComments} comments
         </Typography>
-        <Box sx={{ flexGrow: 1 }} />
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
       </CardActions>
-      <Collapse in={commentsOpen} timeout="auto" unmountOnExit>
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          <Comments threadId={thread.id} />
+          {/* Placeholder for Comments component */}
+          <Comments threadId={id} />
         </CardContent>
       </Collapse>
     </Card>

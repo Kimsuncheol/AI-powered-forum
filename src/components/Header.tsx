@@ -3,22 +3,23 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  Button,
   IconButton,
+  Button,
+  Avatar,
   Box,
   InputBase,
-  Avatar,
+  alpha,
+  styled,
 } from "@mui/material";
-import { styled, alpha } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
-import CreateIcon from "@mui/icons-material/Create";
+import AddIcon from "@mui/icons-material/Add";
 import ChatIcon from "@mui/icons-material/Chat";
-import { useLocation, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useLocation, Link as RouterLink } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 import UserMenu from "./UserMenu";
 import SearchModal from "./SearchModal";
-import ThemeToggle from "./ThemeToggle";
 
+// Styled components for Search
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -59,14 +60,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const Header = () => {
-  const { user, isAuthenticated } = useAuth();
+const Header: React.FC = () => {
   const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Mock auth state
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // Hide header on sign-in and sign-up pages
-  if (["/sign-in", "/sign-up"].includes(location.pathname)) {
+  // Hide header on auth pages
+  if (["/signin", "/signup"].includes(location.pathname)) {
     return null;
   }
 
@@ -78,67 +79,93 @@ const Header = () => {
     setAnchorEl(null);
   };
 
+  const handleToggleAuth = () => {
+    setIsAuthenticated(!isAuthenticated);
+  };
+
+  const handleSearchOpen = () => {
+    setIsSearchOpen(true);
+  };
+
+  const handleSearchClose = () => {
+    setIsSearchOpen(false);
+  };
+
   return (
-    <>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography
-            variant="h6"
-            noWrap
-            component={Link}
-            to="/"
-            sx={{
-              display: { xs: "none", sm: "block" },
-              textDecoration: "none",
-              color: "inherit",
-              fontWeight: "bold",
-            }}
+    <AppBar position="static" color="default" elevation={1}>
+      <Toolbar>
+        {/* Logo */}
+        <Typography
+          variant="h6"
+          noWrap
+          component={RouterLink}
+          to="/"
+          sx={{
+            display: { xs: "none", sm: "block" },
+            textDecoration: "none",
+            color: "inherit",
+            fontWeight: "bold",
+          }}
+        >
+          THREADS
+        </Typography>
+
+        {/* Search Bar */}
+        <Search onClick={handleSearchOpen}>
+          <SearchIconWrapper>
+            <SearchIcon />
+          </SearchIconWrapper>
+          <StyledInputBase
+            placeholder="Search…"
+            inputProps={{ "aria-label": "search", readOnly: true }} // Make readOnly to prevent typing before modal opens
+          />
+        </Search>
+
+        <Box sx={{ flexGrow: 1 }} />
+
+        {/* Action Section */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <IconButton
+            size="large"
+            aria-label="create new thread"
+            color="inherit"
           >
-            THREADS
-          </Typography>
+            <AddIcon />
+          </IconButton>
+          <IconButton size="large" aria-label="chat" color="inherit">
+            <ChatIcon />
+          </IconButton>
 
-          <Search onClick={() => setSearchOpen(true)}>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ "aria-label": "search" }}
-              readOnly
-            />
-          </Search>
+          <ThemeToggle />
 
-          <Box sx={{ flexGrow: 1 }} />
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton color="inherit" component={Link} to="/new-thread">
-              <CreateIcon />
-            </IconButton>
-            <IconButton color="inherit">
-              <ChatIcon />
-            </IconButton>
-            <ThemeToggle />
-
-            {isAuthenticated ? (
+          {/* Auth State */}
+          {isAuthenticated ? (
+            <>
               <IconButton onClick={handleMenuOpen} sx={{ p: 0, ml: 1 }}>
-                <Avatar alt={user?.name} src={user?.avatarUrl} />
+                <Avatar alt="User Name" src="/static/images/avatar/2.jpg" />
               </IconButton>
-            ) : (
-              <Button color="inherit" component={Link} to="/sign-in">
-                Login
-              </Button>
-            )}
-          </Box>
-        </Toolbar>
-      </AppBar>
-
-      <UserMenu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      />
-      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
-    </>
+              <UserMenu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                onSignOut={handleToggleAuth}
+                username="Demo User"
+              />
+            </>
+          ) : (
+            <Button
+              color="inherit"
+              component={RouterLink}
+              to="/signin"
+              onClick={handleToggleAuth} // Temporary toggle for testing
+            >
+              Login
+            </Button>
+          )}
+        </Box>
+      </Toolbar>
+      <SearchModal open={isSearchOpen} onClose={handleSearchClose} />
+    </AppBar>
   );
 };
 

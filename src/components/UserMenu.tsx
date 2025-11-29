@@ -4,26 +4,27 @@ import {
   MenuItem,
   Typography,
   Divider,
+  Box,
   ListItemIcon,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useAuth } from "../context/AuthContext";
 
 interface UserMenuProps {
-  anchorEl: null | HTMLElement;
+  anchorEl: HTMLElement | null;
   open: boolean;
   onClose: () => void;
+  onSignOut: () => void;
+  username?: string;
 }
 
-const UserMenu: React.FC<UserMenuProps> = ({ anchorEl, open, onClose }) => {
-  const { user, logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    onClose();
-  };
-
+const UserMenu: React.FC<UserMenuProps> = ({
+  anchorEl,
+  open,
+  onClose,
+  onSignOut,
+  username = "User Name",
+}) => {
   return (
     <Menu
       anchorEl={anchorEl}
@@ -36,6 +37,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ anchorEl, open, onClose }) => {
           overflow: "visible",
           filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
           mt: 1.5,
+          minWidth: 200,
           "& .MuiAvatar-root": {
             width: 32,
             height: 32,
@@ -59,14 +61,11 @@ const UserMenu: React.FC<UserMenuProps> = ({ anchorEl, open, onClose }) => {
       transformOrigin={{ horizontal: "right", vertical: "top" }}
       anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
     >
-      <MenuItem
-        disabled
-        sx={{ opacity: "1 !important", color: "text.primary" }}
-      >
+      <Box sx={{ px: 2, py: 1 }}>
         <Typography variant="subtitle1" fontWeight="bold">
-          {user?.name || "User"}
+          {username}
         </Typography>
-      </MenuItem>
+      </Box>
       <Divider />
       <MenuItem onClick={onClose}>
         <ListItemIcon>
@@ -74,7 +73,12 @@ const UserMenu: React.FC<UserMenuProps> = ({ anchorEl, open, onClose }) => {
         </ListItemIcon>
         Profile
       </MenuItem>
-      <MenuItem onClick={handleLogout}>
+      <MenuItem
+        onClick={() => {
+          onClose();
+          onSignOut();
+        }}
+      >
         <ListItemIcon>
           <LogoutIcon fontSize="small" />
         </ListItemIcon>
