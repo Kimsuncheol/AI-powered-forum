@@ -8,18 +8,16 @@ import {
   Box,
   InputBase,
   Avatar,
-  useTheme,
 } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import CreateIcon from "@mui/icons-material/Create";
 import ChatIcon from "@mui/icons-material/Chat";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import UserMenu from "./UserMenu";
 import SearchModal from "./SearchModal";
+import ThemeToggle from "./ThemeToggle";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -64,7 +62,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const Header = () => {
   const { user, isAuthenticated } = useAuth();
   const location = useLocation();
-  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -114,19 +111,13 @@ const Header = () => {
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton color="inherit">
+            <IconButton color="inherit" component={Link} to="/new-thread">
               <CreateIcon />
             </IconButton>
             <IconButton color="inherit">
               <ChatIcon />
             </IconButton>
-            <IconButton color="inherit">
-              {theme.palette.mode === "dark" ? (
-                <Brightness7Icon />
-              ) : (
-                <Brightness4Icon />
-              )}
-            </IconButton>
+            <ThemeToggle />
 
             {isAuthenticated ? (
               <IconButton onClick={handleMenuOpen} sx={{ p: 0, ml: 1 }}>

@@ -1,23 +1,17 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import Header from "./components/Header";
 import SignInPage from "./app/sign-in/page";
 import SignUpPage from "./app/sign-up/page";
 import ProfilePage from "./app/profile/page";
 import DashboardPage from "./app/dashboard/page";
-
-const theme = createTheme({
-  palette: {
-    mode: "light", // You can make this dynamic later
-  },
-});
+import NewThreadPage from "./app/new-thread/page";
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <ThemeProvider>
       <AuthProvider>
         <Router>
           <div className="App">
@@ -27,6 +21,7 @@ function App() {
               <Route path="/sign-in" element={<SignInPage />} />
               <Route path="/sign-up" element={<SignUpPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/new-thread" element={<NewThreadPage />} />
             </Routes>
           </div>
         </Router>
