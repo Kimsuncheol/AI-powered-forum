@@ -13,8 +13,8 @@ import ImageIcon from "@mui/icons-material/Image";
 import LinkIcon from "@mui/icons-material/Link";
 import TagInput from "../components/TagInput";
 import TextEditor from "../components/TextEditor";
-import MediaUpload from "../components/MediaUpload";
-import LinkInput from "../components/LinkInput";
+import MediaEditor from "../components/MediaEditor";
+import LinkEditor from "../components/LinkEditor";
 
 type ThreadMode = "text" | "media" | "link";
 
@@ -32,14 +32,39 @@ const NewThreadPage: React.FC = () => {
     }
   };
 
-  const handlePost = (content: any) => {
-    console.log("New Thread Posted:", {
+  const handleTextPost = (content: string) => {
+    console.log("Posting Text Thread:", {
       title,
       tags,
-      mode,
+      type: "text",
       content,
     });
-    // Here you would typically redirect the user or show a success message
+    // TODO: Implement API call
+  };
+
+  const handleMediaPost = (data: {
+    file?: File;
+    generatedMedia?: string[];
+    prompt?: string;
+    caption: string;
+  }) => {
+    console.log("Posting Media Thread:", {
+      title,
+      tags,
+      type: "media",
+      ...data,
+    });
+    // TODO: Implement API call
+  };
+
+  const handleLinkPost = (data: { url: string; caption: string }) => {
+    console.log("Posting Link Thread:", {
+      title,
+      tags,
+      type: "link",
+      ...data,
+    });
+    // TODO: Implement API call
   };
 
   return (
@@ -60,7 +85,7 @@ const NewThreadPage: React.FC = () => {
             mb: 3,
             display: "flex",
             flexDirection: "column",
-            alignItems: "left",
+            alignItems: "stretch",
             gap: 2,
           }}
         >
@@ -70,11 +95,12 @@ const NewThreadPage: React.FC = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             variant="outlined"
+            fullWidth
           />
           <TagInput tags={tags} onChange={setTags} />
         </Box>
 
-        <Box sx={{ mb: 3, display: "flex", justifyContent: "left" }}>
+        <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-start" }}>
           <ToggleButtonGroup
             value={mode}
             exclusive
@@ -94,9 +120,9 @@ const NewThreadPage: React.FC = () => {
         </Box>
 
         <Box>
-          {mode === "text" && <TextEditor onPost={handlePost} />}
-          {mode === "media" && <MediaUpload onPost={handlePost} />}
-          {mode === "link" && <LinkInput onPost={handlePost} />}
+          {mode === "text" && <TextEditor onPost={handleTextPost} />}
+          {mode === "media" && <MediaEditor onPost={handleMediaPost} />}
+          {mode === "link" && <LinkEditor onPost={handleLinkPost} />}
         </Box>
       </Paper>
     </Container>

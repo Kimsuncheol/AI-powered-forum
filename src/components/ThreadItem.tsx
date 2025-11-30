@@ -91,7 +91,7 @@ const ThreadItem: React.FC<ThreadItemProps> = ({
         subheader="2 hours ago" // Mock timestamp
       />
       <CardContent>
-        <Typography variant="body1" color="text.primary">
+        <Typography variant="body1" color="text.primary" align="left">
           {content}
         </Typography>
       </CardContent>

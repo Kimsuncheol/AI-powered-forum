@@ -1,11 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Box,
-  Chip,
-  IconButton,
-  TextField,
-  InputAdornment,
-} from "@mui/material";
+import { Box, Chip, IconButton, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 interface TagInputProps {
@@ -76,18 +70,23 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange }) => {
           onKeyDown={handleInputKeyDown}
           onBlur={handleBlur}
           size="small"
-          variant="outlined"
+          variant="standard"
           placeholder="New tag"
           sx={{ width: 100 }}
           InputProps={{
-            style: { height: 32, padding: "0 8px" },
+            disableUnderline: false,
           }}
         />
       ) : (
         <IconButton
           onClick={handleAddClick}
           size="small"
-          sx={{ border: "1px dashed grey" }}
+          sx={{
+            border: "1px dashed",
+            borderColor: "text.secondary",
+            p: 0.5,
+          }}
+          aria-label="add tag"
         >
           <AddIcon fontSize="small" />
         </IconButton>

@@ -12,7 +12,7 @@ import {
 import CodeMirror from "@uiw/react-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import ReactMarkdown from "react-markdown";
-
+import { useThemeMode } from "../context/ThemeContext";
 interface TextEditorProps {
   onPost: (content: string) => void;
 }
@@ -20,6 +20,8 @@ interface TextEditorProps {
 const TextEditor: React.FC<TextEditorProps> = ({ onPost }) => {
   const [mode, setMode] = useState(0); // 0: Text, 1: Markdown
   const [content, setContent] = useState("");
+  // ThemeMode
+  const { mode: themeMode } = useThemeMode();
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setMode(newValue);
@@ -66,8 +68,12 @@ const TextEditor: React.FC<TextEditorProps> = ({ onPost }) => {
                   height="100%"
                   extensions={[markdown()]}
                   onChange={(value) => setContent(value)}
-                  theme="light"
-                  style={{ border: "1px solid #ccc", height: "100%" }}
+                  theme={themeMode === "dark" ? "dark" : "light"}
+                  style={{
+                    border: "1px solid #ccc",
+                    height: "100%",
+                    textAlign: "left",
+                  }}
                 />
               </Grid>
               <Grid

@@ -98,7 +98,12 @@ const Header: React.FC = () => {
   };
 
   return (
-    <AppBar position="static" color="default" elevation={1}>
+    <AppBar
+      position="static"
+      color="default"
+      elevation={1}
+      sx={{ position: "sticky", top: 0, zIndex: 1200 }}
+    >
       <Toolbar>
         {/* Logo */}
         <Typography

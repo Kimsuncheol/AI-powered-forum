@@ -88,7 +88,7 @@ const Comments: React.FC<CommentsProps> = ({ threadId }) => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Typography variant="subtitle2" sx={{ mb: 2 }}>
+      <Typography variant="subtitle2" sx={{ mb: 2 }} align="left">
         Comments ({comments.length})
       </Typography>
 
