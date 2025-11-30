@@ -6,6 +6,7 @@ import {
   Avatar,
   Paper,
   AvatarGroup,
+  useTheme,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useParams, useNavigate } from "react-router-dom";
@@ -66,6 +67,7 @@ const getMockMessages = (roomId: string): Message[] => {
 const ChatRoomPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const theme = useTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -124,7 +126,14 @@ const ChatRoomPage: React.FC = () => {
       </Box>
 
       {/* Message Feed */}
-      <Box sx={{ flexGrow: 1, overflow: "auto", p: 2, bgcolor: "grey.50" }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflow: "auto",
+          p: 2,
+          bgcolor: theme.palette.background.paper,
+        }}
+      >
         {messages.map((msg) => (
           <Box
             key={msg.id}

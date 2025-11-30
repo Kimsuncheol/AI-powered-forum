@@ -43,7 +43,7 @@ const NewThreadPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Typography
         variant="h4"
         fontWeight="bold"
@@ -55,20 +55,26 @@ const NewThreadPage: React.FC = () => {
       </Typography>
 
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        <Box sx={{ mb: 3 }}>
+        <Box
+          sx={{
+            mb: 3,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "left",
+            gap: 2,
+          }}
+        >
           <TextField
-            fullWidth
             label="Title"
             placeholder="What's on your mind?"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             variant="outlined"
-            sx={{ mb: 2 }}
           />
           <TagInput tags={tags} onChange={setTags} />
         </Box>
 
-        <Box sx={{ mb: 3, display: "flex", justifyContent: "center" }}>
+        <Box sx={{ mb: 3, display: "flex", justifyContent: "left" }}>
           <ToggleButtonGroup
             value={mode}
             exclusive

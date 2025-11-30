@@ -14,7 +14,8 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import ChatIcon from "@mui/icons-material/Chat";
-import { useLocation, Link as RouterLink } from "react-router-dom";
+import InboxIcon from "@mui/icons-material/Inbox";
+import { useLocation, Link as RouterLink, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import UserMenu from "./UserMenu";
 import SearchModal from "./SearchModal";
@@ -61,6 +62,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const Header: React.FC = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Mock auth state
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -89,6 +91,10 @@ const Header: React.FC = () => {
 
   const handleSearchClose = () => {
     setIsSearchOpen(false);
+  };
+
+  const handleNavigation = (target: string) => {
+    navigate(`/${target}`);
   };
 
   return (
@@ -129,11 +135,27 @@ const Header: React.FC = () => {
             size="large"
             aria-label="create new thread"
             color="inherit"
+            onClick={() => handleNavigation("new-thread")}
           >
             <AddIcon />
           </IconButton>
-          <IconButton size="large" aria-label="chat" color="inherit">
+          <IconButton
+            size="large"
+            aria-label="chat"
+            color="inherit"
+            onClick={() => handleNavigation("chat")}
+          >
             <ChatIcon />
+          </IconButton>
+
+          {/* Inbox */}
+          <IconButton
+            size="large"
+            aria-label="inbox"
+            color="inherit"
+            onClick={() => handleNavigation("inbox")}
+          >
+            <InboxIcon />
           </IconButton>
 
           <ThemeToggle />

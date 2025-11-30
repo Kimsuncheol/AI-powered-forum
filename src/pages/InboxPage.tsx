@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -72,6 +73,7 @@ const initialMessages: Message[] = [
 ];
 
 const InboxPage: React.FC = () => {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isDeletionMode, setIsDeletionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -102,7 +104,7 @@ const InboxPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box
         sx={{
           display: "flex",
@@ -144,6 +146,9 @@ const InboxPage: React.FC = () => {
               <ListItem
                 key={message.id}
                 disablePadding
+                onClick={() =>
+                  !isDeletionMode && navigate(`/inbox/${message.id}`)
+                }
                 sx={{
                   transition: "background-color 0.2s",
                   "&:hover": {

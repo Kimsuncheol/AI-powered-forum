@@ -61,19 +61,19 @@ const DashboardPage: React.FC = () => {
   );
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography
         variant="h4"
         fontWeight="bold"
         gutterBottom
-        align="center"
+        align="left"
         sx={{ mb: 4 }}
       >
         Your Feed
       </Typography>
 
       <Box
-        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+        sx={{ display: "flex", flexDirection: "column", alignItems: "left" }}
       >
         {threads.map((thread, index) => {
           if (threads.length === index + 1) {

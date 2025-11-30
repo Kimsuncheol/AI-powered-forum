@@ -63,7 +63,7 @@ const ThreadItem: React.FC<ThreadItemProps> = ({
   };
 
   return (
-    <Card sx={{ maxWidth: 600, width: "100%", mb: 2 }}>
+    <Card sx={{ maxWidth: "100%", mb: 2 }}>
       <CardHeader
         avatar={
           <Avatar src={author.avatar} aria-label="recipe">
@@ -71,14 +71,13 @@ const ThreadItem: React.FC<ThreadItemProps> = ({
           </Avatar>
         }
         action={
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Button
               variant={isFollowing ? "outlined" : "text"}
               color={isFollowing ? "secondary" : "primary"}
               onClick={handleFollowClick}
               onMouseEnter={() => setIsHoveringFollow(true)}
               onMouseLeave={() => setIsHoveringFollow(false)}
-              sx={{ mr: 1, minWidth: 100 }}
             >
               {getFollowButtonText()}
             </Button>
@@ -87,6 +86,7 @@ const ThreadItem: React.FC<ThreadItemProps> = ({
             </IconButton>
           </Box>
         }
+        align="left"
         title={author.name}
         subheader="2 hours ago" // Mock timestamp
       />
