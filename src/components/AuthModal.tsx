@@ -11,7 +11,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import SignInForm from "./SignInForm";
 import SignUpForm from "./SignUpForm";
-import ResetPasswordForm from "./ResetPasswordForm";
+import ResetPasswordRequestForm from "./ResetPasswordRequestForm";
 
 interface AuthModalProps {
   open: boolean;
@@ -42,7 +42,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose }) => {
       case "signup":
         return "SIGN UP";
       case "reset":
-        return "RESET PASSWORD";
+        return "FORGOT PASSWORD";
       default:
         return "SIGN IN";
     }
@@ -88,7 +88,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose }) => {
             <SignUpForm onSwitchView={handleSwitchToSignIn} />
           )}
           {view === "reset" && (
-            <ResetPasswordForm onBack={handleSwitchToSignIn} />
+            <ResetPasswordRequestForm onBack={handleSwitchToSignIn} />
           )}
         </Box>
       </DialogContent>
