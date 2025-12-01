@@ -19,6 +19,7 @@ import { useLocation, Link as RouterLink, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import UserMenu from "./UserMenu";
 import SearchModal from "./SearchModal";
+import AuthModal from "./AuthModal";
 
 // Styled components for Search
 const Search = styled("div")(({ theme }) => ({
@@ -63,15 +64,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Mock auth state
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  // Hide header on auth pages
-  if (["/signin", "/signup"].includes(location.pathname)) {
-    return null;
-  }
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -95,6 +91,10 @@ const Header: React.FC = () => {
 
   const handleNavigation = (target: string) => {
     navigate(`/${target}`);
+  };
+
+  const handleLoginClick = () => {
+    setIsAuthModalOpen(true);
   };
 
   return (
@@ -180,18 +180,17 @@ const Header: React.FC = () => {
               />
             </>
           ) : (
-            <Button
-              color="inherit"
-              component={RouterLink}
-              to="/signin"
-              onClick={handleToggleAuth} // Temporary toggle for testing
-            >
+            <Button color="inherit" onClick={handleLoginClick}>
               Login
             </Button>
           )}
         </Box>
       </Toolbar>
       <SearchModal open={isSearchOpen} onClose={handleSearchClose} />
+      <AuthModal
+        open={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </AppBar>
   );
 };

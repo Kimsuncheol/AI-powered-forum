@@ -1,8 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
-import SignInPage from "./pages/SignInPage";
-import SignUpPage from "./pages/SignUpPage";
 import ProfilePage from "./pages/ProfilePage";
 import DashboardPage from "./pages/DashboardPage";
 import NewThreadPage from "./pages/NewThreadPage";
@@ -22,8 +20,6 @@ function App() {
           <Header />
           <Routes>
             <Route path="/" element={<DashboardPage />} />
-            <Route path="/signin" element={<SignInPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/new-thread" element={<NewThreadPage />} />
