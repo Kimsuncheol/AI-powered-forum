@@ -2,7 +2,7 @@ import React from "react";
 import { Box, TextField, Button, Typography, Link } from "@mui/material";
 
 interface SignInFormProps {
-  onSwitchView: () => void;
+  onSwitchView: (view: "signup" | "reset") => void;
 }
 
 const SignInForm: React.FC<SignInFormProps> = ({ onSwitchView }) => {
@@ -34,6 +34,17 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitchView }) => {
         id="password"
         autoComplete="current-password"
       />
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Link
+          component="button"
+          type="button"
+          variant="body2"
+          onClick={() => onSwitchView("reset")}
+          underline="hover"
+        >
+          Forgot password?
+        </Link>
+      </Box>
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
         Sign In
       </Button>
@@ -45,7 +56,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitchView }) => {
           component="button"
           type="button"
           variant="body2"
-          onClick={onSwitchView}
+          onClick={() => onSwitchView("signup")}
           underline="hover"
         >
           Sign up

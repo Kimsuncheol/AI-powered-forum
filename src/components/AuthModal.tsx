@@ -11,27 +11,41 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import SignInForm from "./SignInForm";
 import SignUpForm from "./SignUpForm";
+import ResetPasswordForm from "./ResetPasswordForm";
 
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-type AuthView = "signin" | "signup";
+type AuthView = "signin" | "signup" | "reset";
 
 const AuthModal: React.FC<AuthModalProps> = ({ open, onClose }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [view, setView] = useState<AuthView>("signin");
 
-  const handleSwitchToSignUp = () => setView("signup");
   const handleSwitchToSignIn = () => setView("signin");
+  const handleSwitchView = (newView: "signup" | "reset") => setView(newView);
 
   // Reset view when modal closes
   const handleClose = () => {
     onClose();
     // Optional: reset view after transition
     setTimeout(() => setView("signin"), 300);
+  };
+
+  const getTitle = () => {
+    switch (view) {
+      case "signin":
+        return "SIGN IN";
+      case "signup":
+        return "SIGN UP";
+      case "reset":
+        return "RESET PASSWORD";
+      default:
+        return "SIGN IN";
+    }
   };
 
   return (
@@ -47,7 +61,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose }) => {
         id="auth-modal-title"
         sx={{ m: 0, p: 2, textAlign: "center", fontWeight: "bold" }}
       >
-        {view === "signin" ? "SIGN IN" : "SIGN UP"}
+        {getTitle()}
         <IconButton
           aria-label="close"
           onClick={handleClose}
@@ -69,10 +83,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose }) => {
             alignItems: "center",
           }}
         >
-          {view === "signin" ? (
-            <SignInForm onSwitchView={handleSwitchToSignUp} />
-          ) : (
+          {view === "signin" && <SignInForm onSwitchView={handleSwitchView} />}
+          {view === "signup" && (
             <SignUpForm onSwitchView={handleSwitchToSignIn} />
+          )}
+          {view === "reset" && (
+            <ResetPasswordForm onBack={handleSwitchToSignIn} />
           )}
         </Box>
       </DialogContent>
