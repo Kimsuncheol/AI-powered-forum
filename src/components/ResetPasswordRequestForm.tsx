@@ -8,7 +8,7 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import axios from "axios";
+import authApi from "../services/authApi";
 
 interface ResetPasswordRequestFormProps {
   onBack: () => void;
@@ -33,12 +33,13 @@ const ResetPasswordRequestForm: React.FC<ResetPasswordRequestFormProps> = ({
     setError("");
 
     try {
-      // API call to request reset link
-      await axios.post("/api/v1/auth/forgot-password", { email });
+      await authApi.forgotPassword({ email });
       setSubmitted(true);
     } catch (err) {
-      setError("Failed to send reset link. Please try again.");
       console.error(err);
+      // Show success message to prevent email enumeration, or generic error if preferred.
+      // For this implementation, we set submitted to true to show the success message.
+      setSubmitted(true);
     } finally {
       setLoading(false);
     }
@@ -48,7 +49,7 @@ const ResetPasswordRequestForm: React.FC<ResetPasswordRequestFormProps> = ({
     return (
       <Box sx={{ mt: 1, width: "100%", textAlign: "center" }}>
         <Alert severity="success" sx={{ mb: 2 }}>
-          Check your email for the confirmation link.
+          If an account exists for {email}, a reset link has been sent.
         </Alert>
         <Button onClick={onBack} variant="outlined" fullWidth>
           Back to Sign In

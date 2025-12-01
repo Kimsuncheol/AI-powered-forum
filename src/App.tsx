@@ -11,30 +11,33 @@ import ChatListPage from "./pages/ChatListPage";
 import ChatRoomPage from "./pages/ChatRoomPage";
 import NewPasswordPage from "./pages/NewPasswordPage";
 import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
 import "./App.css";
 
 function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <div className="App">
-          <Header />
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/new-thread" element={<NewThreadPage />} />
-            <Route path="/inbox" element={<InboxPage />} />
-            <Route path="/inbox/:id" element={<InboxDetailPage />} />
-            <Route path="/reset-password" element={<NewPasswordPage />} />
-            <Route path="/chat" element={<ChatLayout />}>
-              <Route index element={<ChatListPage />} />
-              <Route path=":id" element={<ChatRoomPage />} />
-            </Route>
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <BrowserRouter>
+          <div className="App">
+            <Header />
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/new-thread" element={<NewThreadPage />} />
+              <Route path="/inbox" element={<InboxPage />} />
+              <Route path="/inbox/:id" element={<InboxDetailPage />} />
+              <Route path="/reset-password" element={<NewPasswordPage />} />
+              <Route path="/chat" element={<ChatLayout />}>
+                <Route index element={<ChatListPage />} />
+                <Route path=":id" element={<ChatRoomPage />} />
+              </Route>
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

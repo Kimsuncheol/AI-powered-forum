@@ -83,9 +83,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose }) => {
             alignItems: "center",
           }}
         >
-          {view === "signin" && <SignInForm onSwitchView={handleSwitchView} />}
+          {view === "signin" && (
+            <SignInForm onSwitchView={handleSwitchView} onClose={handleClose} />
+          )}
           {view === "signup" && (
-            <SignUpForm onSwitchView={handleSwitchToSignIn} />
+            <SignUpForm
+              onSwitchView={handleSwitchToSignIn}
+              onClose={handleClose}
+            />
           )}
           {view === "reset" && (
             <ResetPasswordRequestForm onBack={handleSwitchToSignIn} />

@@ -9,101 +9,121 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import authApi from "../services/authApi";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 
 interface SignUpFormProps {
   onSwitchView: () => void;
+  onClose: () => void;
 }
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchView }) => {
+const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchView, onClose }) => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
 
-  const [passwordCriteria, setPasswordCriteria] = useState({
-    minChar: false,
+  const [validation, setValidation] = useState({
+    minLength: false,
     hasNumber: false,
     hasSymbol: false,
+    match: false,
   });
-
-  const [passwordsMatch, setPasswordsMatch] = useState(false);
 
   useEffect(() => {
     const { password, confirmPassword } = formData;
-
-    setPasswordCriteria({
-      minChar: password.length >= 8,
+    setValidation({
+      minLength: password.length >= 8,
       hasNumber: /\d/.test(password),
       hasSymbol: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      match: password === confirmPassword && password !== "",
     });
-
-    setPasswordsMatch(password === confirmPassword && password !== "");
   }, [formData]);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const isValid =
+    Object.values(validation).every(Boolean) && formData.name && formData.email;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setApiError(""); // Clear API error on input change
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (isFormValid()) {
-      // TODO: Implement actual sign-up logic here
-      console.log("Sign up submitted", formData);
+    if (!isValid) return;
+
+    setLoading(true);
+    setApiError("");
+
+    try {
+      // 1. Signup
+      await authApi.signup({
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+      });
+
+      // 2. Auto-login
+      const tokenData = await authApi.login({
+        email: formData.email,
+        password: formData.password,
+      });
+      localStorage.setItem("token", tokenData.access_token);
+
+      // 3. Get User Profile
+      const user = await authApi.getMe(tokenData.access_token);
+      login(user);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      if (axios.isAxiosError(err) && err.response?.status === 422) {
+        // Check if it's an email exists error (this depends on backend response structure, assuming generic 422 for now or checking message)
+        // For now, we'll display a generic error or specific if available
+        const msg =
+          err.response.data?.detail || "Registration failed. Please try again.";
+        if (JSON.stringify(msg).toLowerCase().includes("email")) {
+          setApiError("Email already exists");
+        } else {
+          setApiError("Registration failed. Please check your inputs.");
+        }
+      } else {
+        setApiError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const isFormValid = () => {
-    return (
-      passwordCriteria.minChar &&
-      passwordCriteria.hasNumber &&
-      passwordCriteria.hasSymbol &&
-      passwordsMatch &&
-      formData.name &&
-      formData.email
-    );
-  };
-
-  const renderCriteriaItem = (met: boolean, text: string) => (
-    <ListItem sx={{ py: 0, px: 0 }}>
-      <ListItemIcon sx={{ minWidth: 24 }}>
-        {met ? (
-          <CheckCircleIcon color="success" fontSize="small" />
-        ) : (
-          <RadioButtonUncheckedIcon color="disabled" fontSize="small" />
-        )}
-      </ListItemIcon>
-      <ListItemText
-        primary={text}
-        primaryTypographyProps={{
-          variant: "caption",
-          color: met ? "success.main" : "text.secondary",
-        }}
-      />
-    </ListItem>
-  );
-
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: "100%" }}>
+      {apiError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {apiError}
+        </Alert>
+      )}
       <TextField
         margin="normal"
         required
         fullWidth
         id="name"
-        label="Name"
+        label="Full Name"
         name="name"
         autoComplete="name"
         autoFocus
         value={formData.name}
         onChange={handleChange}
+        disabled={loading}
       />
       <TextField
         margin="normal"
@@ -115,6 +135,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchView }) => {
         autoComplete="email"
         value={formData.email}
         onChange={handleChange}
+        error={apiError === "Email already exists"}
+        helperText={apiError === "Email already exists" ? apiError : ""}
+        disabled={loading}
       />
       <TextField
         margin="normal"
@@ -127,17 +150,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchView }) => {
         autoComplete="new-password"
         value={formData.password}
         onChange={handleChange}
+        disabled={loading}
       />
-
-      {/* Password Validation Criteria */}
-      <Box sx={{ ml: 1, mt: 1, mb: 1 }}>
-        <List dense>
-          {renderCriteriaItem(passwordCriteria.minChar, "Min 8 chars")}
-          {renderCriteriaItem(passwordCriteria.hasNumber, "1 Number")}
-          {renderCriteriaItem(passwordCriteria.hasSymbol, "1 Symbol")}
-        </List>
-      </Box>
-
       <TextField
         margin="normal"
         required
@@ -149,27 +163,90 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchView }) => {
         autoComplete="new-password"
         value={formData.confirmPassword}
         onChange={handleChange}
-        error={formData.confirmPassword !== "" && !passwordsMatch}
-        helperText={
-          formData.confirmPassword !== "" && !passwordsMatch
-            ? "Passwords do not match"
-            : passwordsMatch
-            ? "Passwords match"
-            : ""
-        }
-        FormHelperTextProps={{
-          sx: { color: passwordsMatch ? "success.main" : "error.main" },
-        }}
+        disabled={loading}
       />
+
+      <List dense>
+        <ListItem>
+          <ListItemIcon>
+            {validation.minLength ? (
+              <CheckCircleIcon color="success" />
+            ) : (
+              <RadioButtonUncheckedIcon color="disabled" />
+            )}
+          </ListItemIcon>
+          <ListItemText
+            primary="At least 8 characters"
+            primaryTypographyProps={{
+              color: validation.minLength ? "text.primary" : "text.secondary",
+            }}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemIcon>
+            {validation.hasNumber ? (
+              <CheckCircleIcon color="success" />
+            ) : (
+              <RadioButtonUncheckedIcon color="disabled" />
+            )}
+          </ListItemIcon>
+          <ListItemText
+            primary="Contains at least 1 number"
+            primaryTypographyProps={{
+              color: validation.hasNumber ? "text.primary" : "text.secondary",
+            }}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemIcon>
+            {validation.hasSymbol ? (
+              <CheckCircleIcon color="success" />
+            ) : (
+              <RadioButtonUncheckedIcon color="disabled" />
+            )}
+          </ListItemIcon>
+          <ListItemText
+            primary="Contains at least 1 symbol"
+            primaryTypographyProps={{
+              color: validation.hasSymbol ? "text.primary" : "text.secondary",
+            }}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemIcon>
+            {validation.match ? (
+              <CheckCircleIcon color="success" />
+            ) : (
+              <RadioButtonUncheckedIcon color="disabled" />
+            )}
+          </ListItemIcon>
+          <ListItemText
+            primary={
+              !formData.confirmPassword
+                ? "Passwords must match"
+                : validation.match
+                ? "Passwords match"
+                : "Passwords do not match"
+            }
+            primaryTypographyProps={{
+              color: !formData.confirmPassword
+                ? "text.secondary"
+                : validation.match
+                ? "success.main"
+                : "error.main",
+            }}
+          />
+        </ListItem>
+      </List>
 
       <Button
         type="submit"
         fullWidth
         variant="contained"
         sx={{ mt: 3, mb: 2 }}
-        disabled={!isFormValid()}
+        disabled={!isValid || loading}
       >
-        Sign Up
+        {loading ? <CircularProgress size={24} /> : "Sign Up"}
       </Button>
       <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
         <Typography variant="body2" color="text.secondary">
@@ -181,6 +258,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchView }) => {
           variant="body2"
           onClick={onSwitchView}
           underline="hover"
+          disabled={loading}
         >
           Sign in
         </Link>
