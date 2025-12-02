@@ -11,9 +11,13 @@ import {
   ListItemText,
   Alert,
   CircularProgress,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import authApi from "../services/authApi";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
@@ -40,6 +44,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchView, onClose }) => {
     hasSymbol: false,
     match: false,
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     const { password, confirmPassword } = formData;
@@ -61,6 +67,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchView, onClose }) => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    console.log(formData);
     if (!isValid) return;
 
     setLoading(true);
@@ -145,12 +152,27 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchView, onClose }) => {
         fullWidth
         name="password"
         label="Password"
-        type="password"
+        type={showPassword ? "text" : "password"}
         id="password"
         autoComplete="new-password"
         value={formData.password}
         onChange={handleChange}
         disabled={loading}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((prev) => !prev)}
+                onMouseDown={(e) => e.preventDefault()}
+                edge="end"
+                disabled={loading}
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
       />
       <TextField
         margin="normal"
@@ -158,12 +180,29 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchView, onClose }) => {
         fullWidth
         name="confirmPassword"
         label="Confirm Password"
-        type="password"
+        type={showConfirmPassword ? "text" : "password"}
         id="confirmPassword"
         autoComplete="new-password"
         value={formData.confirmPassword}
         onChange={handleChange}
         disabled={loading}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label={
+                  showConfirmPassword ? "Hide confirm password" : "Show confirm password"
+                }
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                onMouseDown={(e) => e.preventDefault()}
+                edge="end"
+                disabled={loading}
+              >
+                {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
       />
 
       <List dense>

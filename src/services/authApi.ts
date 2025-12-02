@@ -1,9 +1,5 @@
-import axios from "axios";
-
-// 1. Base Configuration
-const api = axios.create({
-  baseURL: "/api/v1",
-});
+// 1. Import apiClient from apiClient.ts
+import { apiClient } from "../api/apiClient";
 
 // 2. Type Definitions (Interfaces)
 export interface UserCreate {
@@ -39,8 +35,9 @@ export interface Msg {
 
 // 3. API Functions
 export const authApi = {
+  // Import the API_BASE_URL from .env
   signup: async (data: UserCreate): Promise<UserResponse> => {
-    const response = await api.post<UserResponse>("/auth/signup", data, {
+    const response = await apiClient.post<UserResponse>("/auth/signup", data, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -53,7 +50,7 @@ export const authApi = {
     params.append("username", data.email);
     params.append("password", data.password);
 
-    const response = await api.post<Token>("/auth/login", params, {
+    const response = await apiClient.post<Token>("/auth/login", params, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
@@ -62,7 +59,7 @@ export const authApi = {
   },
 
   getMe: async (token: string): Promise<UserResponse> => {
-    const response = await api.get<UserResponse>("/auth/me", {
+    const response = await apiClient.get<UserResponse>("/auth/me", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -71,7 +68,7 @@ export const authApi = {
   },
 
   forgotPassword: async (data: ForgotPasswordRequest): Promise<Msg> => {
-    const response = await api.post<Msg>("/auth/forgot-password", data, {
+    const response = await apiClient.post<Msg>("/auth/forgot-password", data, {
       headers: {
         "Content-Type": "application/json",
       },

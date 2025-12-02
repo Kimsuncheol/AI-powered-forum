@@ -7,7 +7,11 @@ import {
   Link,
   Alert,
   CircularProgress,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import authApi from "../services/authApi";
 import { useAuth } from "../context/AuthContext";
 
@@ -22,6 +26,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitchView, onClose }) => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -69,12 +74,27 @@ const SignInForm: React.FC<SignInFormProps> = ({ onSwitchView, onClose }) => {
         fullWidth
         name="password"
         label="Password"
-        type="password"
+        type={showPassword ? "text" : "password"}
         id="password"
         autoComplete="current-password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         disabled={loading}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((prev) => !prev)}
+                onMouseDown={(e) => e.preventDefault()}
+                edge="end"
+                disabled={loading}
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
       />
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Link
