@@ -10,3 +10,12 @@ export interface Thread {
   tagIds: string[];
   categoryId: string;
 }
+
+export interface Comment {
+  id: string;
+  threadId: string;
+  body: string;
+  authorId: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}

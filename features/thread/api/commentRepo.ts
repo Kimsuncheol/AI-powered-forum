@@ -5,46 +5,51 @@ import {
   limit,
   startAfter,
   getDocs,
+  where,
   QueryDocumentSnapshot,
   DocumentData,
   Timestamp,
-  where,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Thread } from "../types";
+import { Comment } from "../types";
 
-export interface GetThreadFeedOptions {
+export interface GetCommentFeedOptions {
   pageSize?: number;
   cursor?: QueryDocumentSnapshot<DocumentData> | null;
   filters?: {
     authorId?: string;
+    threadId?: string;
   };
 }
 
-export interface GetThreadFeedResult {
-  threads: Thread[];
+export interface GetCommentFeedResult {
+  comments: Comment[];
   nextCursor: QueryDocumentSnapshot<DocumentData> | null;
   hasMore: boolean;
 }
 
-const THREADS_COLLECTION = "threads";
+const COMMENTS_COLLECTION = "comments";
 
-export async function getThreadFeed({
+export async function getCommentFeed({
   pageSize = 20,
   cursor,
   filters,
-}: GetThreadFeedOptions = {}): Promise<GetThreadFeedResult> {
+}: GetCommentFeedOptions = {}): Promise<GetCommentFeedResult> {
   try {
-    const threadsRef = collection(db, THREADS_COLLECTION);
+    const commentsRef = collection(db, COMMENTS_COLLECTION);
     
     let q = query(
-      threadsRef,
+      commentsRef,
       orderBy("createdAt", "desc"),
       limit(pageSize)
     );
 
     if (filters?.authorId) {
       q = query(q, where("authorId", "==", filters.authorId));
+    }
+    
+    if (filters?.threadId) {
+      q = query(q, where("threadId", "==", filters.threadId));
     }
 
     if (cursor) {
@@ -53,19 +58,15 @@ export async function getThreadFeed({
 
     const snapshot = await getDocs(q);
     
-    const threads: Thread[] = snapshot.docs.map((doc) => {
+    const comments: Comment[] = snapshot.docs.map((doc) => {
       const data = doc.data();
       return {
         id: doc.id,
-        title: data.title || "",
+        threadId: data.threadId || "",
         body: data.body || "",
         authorId: data.authorId || "",
-        // Handle potentially missing or raw timestamps gracefully if needed, 
-        // but assuming strict adherence to type here.
         createdAt: data.createdAt instanceof Timestamp ? data.createdAt : Timestamp.now(),
         updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt : Timestamp.now(),
-        tagIds: Array.isArray(data.tagIds) ? data.tagIds : [],
-        categoryId: data.categoryId || "",
       };
     });
 
@@ -73,15 +74,14 @@ export async function getThreadFeed({
     const hasMore = snapshot.docs.length === pageSize;
 
     return {
-      threads,
+      comments,
       nextCursor,
       hasMore,
     };
   } catch (error) {
-    console.error("Error fetching thread feed:", error);
-    // Return safe empty state rather than crashing
+    console.error("Error fetching comment feed:", error);
     return {
-      threads: [],
+      comments: [],
       nextCursor: null,
       hasMore: false,
     };

@@ -1,10 +1,19 @@
+"use client";
+
 import { useState, useRef, useEffect, useCallback } from "react";
 import { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
-import { getThreadFeed } from "../api/threadFeedRepo";
-import { Thread } from "../types";
+import { getCommentFeed } from "../api/commentRepo";
+import { Comment } from "../types";
 
-interface UseInfiniteThreadFeedResult {
-  threads: Thread[];
+interface UseInfiniteCommentFeedOptions {
+  filters?: {
+    authorId?: string;
+    threadId?: string;
+  };
+}
+
+interface UseInfiniteCommentFeedResult {
+  comments: Comment[];
   loadingInitial: boolean;
   loadingMore: boolean;
   error: string | null;
@@ -14,26 +23,15 @@ interface UseInfiniteThreadFeedResult {
   refresh: () => Promise<void>;
 }
 
-interface UseInfiniteThreadFeedOptions {
-  filters?: {
-    authorId?: string;
-  };
-}
-
-export function useInfiniteThreadFeed(options: UseInfiniteThreadFeedOptions = {}): UseInfiniteThreadFeedResult {
-  const [threads, setThreads] = useState<Thread[]>([]);
+export function useInfiniteCommentFeed(options: UseInfiniteCommentFeedOptions = {}): UseInfiniteCommentFeedResult {
+  const [comments, setComments] = useState<Comment[]>([]);
   const [loadingInitial, setLoadingInitial] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   
-  // Internal state for cursor
   const lastDocRef = useRef<QueryDocumentSnapshot<DocumentData> | null>(null);
-  
-  // Prevention of race conditions & duplicate calls
   const loadingRef = useRef(false);
-  
-  // Safe unmount handling
   const isMountedRef = useRef(true);
 
   useEffect(() => {
@@ -49,25 +47,25 @@ export function useInfiniteThreadFeed(options: UseInfiniteThreadFeedOptions = {}
 
     setLoadingInitial(true);
     setError(null);
-    setHasMore(true); // Reset hasMore on initial load attempt
-    lastDocRef.current = null; // Reset cursor
+    setHasMore(true);
+    lastDocRef.current = null;
 
     try {
-      const result = await getThreadFeed({ 
+      const result = await getCommentFeed({ 
         pageSize, 
         cursor: null,
         filters: options.filters 
       });
       
       if (isMountedRef.current) {
-        setThreads(result.threads);
+        setComments(result.comments);
         lastDocRef.current = result.nextCursor;
         setHasMore(result.hasMore);
       }
     } catch (err) {
       if (isMountedRef.current) {
-        console.error("Failed to load initial threads", err);
-        setError("Failed to load feed.");
+        console.error("Failed to load initial comments", err);
+        setError("Failed to load comments.");
       }
     } finally {
       if (isMountedRef.current) {
@@ -75,10 +73,9 @@ export function useInfiniteThreadFeed(options: UseInfiniteThreadFeedOptions = {}
       }
       loadingRef.current = false;
     }
-  }, []);
+  }, [options.filters]);
 
   const loadMore = useCallback(async (pageSize = 20) => {
-    // Basic guards
     if (loadingRef.current || !hasMore) return;
     loadingRef.current = true;
 
@@ -86,21 +83,21 @@ export function useInfiniteThreadFeed(options: UseInfiniteThreadFeedOptions = {}
     setError(null);
 
     try {
-      const result = await getThreadFeed({ 
+      const result = await getCommentFeed({ 
         pageSize, 
         cursor: lastDocRef.current,
         filters: options.filters
       });
       
       if (isMountedRef.current) {
-        setThreads((prev) => [...prev, ...result.threads]);
+        setComments((prev) => [...prev, ...result.comments]);
         lastDocRef.current = result.nextCursor;
         setHasMore(result.hasMore);
       }
     } catch (err) {
       if (isMountedRef.current) {
-        console.error("Failed to load more threads", err);
-        setError("Failed to load more threads.");
+        console.error("Failed to load more comments", err);
+        setError("Failed to load more comments.");
       }
     } finally {
       if (isMountedRef.current) {
@@ -108,14 +105,14 @@ export function useInfiniteThreadFeed(options: UseInfiniteThreadFeedOptions = {}
       }
       loadingRef.current = false;
     }
-  }, [hasMore]);
+  }, [hasMore, options.filters]);
 
   const refresh = useCallback(() => {
     return loadInitial();
   }, [loadInitial]);
 
   return {
-    threads,
+    comments,
     loadingInitial,
     loadingMore,
     error,

@@ -18,11 +18,14 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import { usePathname } from "next/navigation";
+import { AddCircleOutlineOutlined } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const { user, loading, signInWithGoogle, signOut } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   if (pathname === "/signin" || pathname === "/signup") {
     return null;
@@ -70,6 +73,9 @@ export default function Header() {
               <Skeleton variant="circular" width={40} height={40} />
             ) : user ? (
               <>
+                <Link href="/thread/new" className="text-decoration-none mr-1">
+                  <AddCircleOutlineOutlined />
+                </Link>
                 <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
                   <Avatar
                     alt={user.displayName || "User"}
@@ -98,7 +104,10 @@ export default function Header() {
                     <Typography variant="body2">{user.email}</Typography>
                   </MenuItem>
                   {/* Placeholder for Profile link */}
-                  <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+                  <MenuItem onClick={() => {
+                      router.push("/profile");
+                    handleMenuClose();
+                  }}>Profile</MenuItem>
                   <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
                     Logout
                   </MenuItem>
