@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import Header from "@/components/Header";
+import { Container } from "@mui/material";
 
 export default function RootLayout({
   children,
@@ -34,7 +35,9 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider>
             <Header />
-            {children}
+            <Container maxWidth="lg">
+              {children}
+            </Container>
           </ThemeProvider>
         </AuthProvider>
       </body>

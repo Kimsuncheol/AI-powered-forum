@@ -1,6 +1,6 @@
 import React from "react";
-import ThreadCard from "@/components/ThreadCard";
-import { Thread } from "../api/thread.service";
+import ThreadCard from "@/features/thread/components/ThreadCard";
+import { Thread } from "@/features/thread/types";
 
 interface ThreadItemProps {
   thread: Thread;

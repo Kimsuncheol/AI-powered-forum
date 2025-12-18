@@ -42,8 +42,8 @@ export default function Header() {
   };
 
   return (
-    <AppBar position="fixed" color="default" elevation={1}>
-      <Container maxWidth="lg">
+    <AppBar position="sticky" color="default" elevation={1}>
+      <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Logo / Title */}
           <Typography
