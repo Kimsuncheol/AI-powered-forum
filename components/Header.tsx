@@ -18,8 +18,9 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import { usePathname } from "next/navigation";
-import { AddCircleOutlineOutlined } from "@mui/icons-material";
+import { AddCircleOutlineOutlined, Search as SearchIcon } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
+import InboxRoundedIcon from '@mui/icons-material/InboxRounded';
 
 export default function Header() {
   const { user, loading, signInWithGoogle, signOut } = useAuth();
@@ -64,6 +65,31 @@ export default function Header() {
             AI Forum
           </Typography>
 
+          {/* Search Bar */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              bgcolor: "action.hover",
+              px: 2,
+              py: 0.75,
+              borderRadius: 2,
+              cursor: "pointer",
+              width: { xs: "auto", sm: 300 },
+              mx: 2,
+              transition: "background-color 0.2s",
+              "&:hover": {
+                bgcolor: "action.selected",
+              },
+            }}
+            onClick={() => router.push("/search")}
+          >
+            <SearchIcon sx={{ color: "text.secondary", mr: 1 }} />
+            <Typography variant="body2" color="text.secondary">
+              Search...
+            </Typography>
+          </Box>
+
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             {/* Theme Toggle */}
             <ThemeToggle />
@@ -73,6 +99,13 @@ export default function Header() {
               <Skeleton variant="circular" width={40} height={40} />
             ) : user ? (
               <>
+                <IconButton
+                  component={Link}
+                  href="/inbox"
+                  sx={{ mr: 2, p: 0 }}
+                >
+                  <InboxRoundedIcon />
+                </IconButton>
                 <Button
                   component={Link}
                   href="/threads/new"

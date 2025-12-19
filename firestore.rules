@@ -48,8 +48,78 @@ service cloud.firestore {
 
     // --- Users Collection (Profiles) ---
     match /users/{userId} {
-      // Users can only read/write their own profile
-      allow read, write: if isAuthenticated() && isOwner(userId);
+      // Anyone can read profiles (for displaying author info)
+      allow read: if true;
+      
+      // Only owner can write their profile
+      allow write: if isAuthenticated() && isOwner(userId);
+    }
+
+    // --- Follows Collection ---
+    match /follows/{followDocId} {
+      // Anyone can read follow relationships
+      allow read: if true;
+
+      // Only authenticated user can create their own follows
+      // Document ID must match pattern: followerId_followingId
+      allow create: if isAuthenticated() 
+        && request.resource.data.followerId == request.auth.uid
+        && followDocId == (request.auth.uid + '_' + request.resource.data.followingId);
+
+      // Only the follower can delete their follow
+      allow delete: if isAuthenticated() 
+        && resource.data.followerId == request.auth.uid;
+
+      // No updates allowed (immutable edge)
+      allow update: if false;
+    }
+
+    // --- Follow Requests Collection ---
+    match /followRequests/{requestDocId} {
+      // Users can read requests where they are sender or target
+      allow read: if isAuthenticated() && (
+        resource.data.fromUid == request.auth.uid ||
+        resource.data.toUid == request.auth.uid
+      );
+      
+      // Create: Sender creates request, status must be PENDING
+      allow create: if isAuthenticated()
+        && request.resource.data.fromUid == request.auth.uid
+        && request.resource.data.status == "PENDING";
+      
+      // Update: Target can ACCEPT/DECLINE, Sender can CANCEL
+      allow update: if isAuthenticated() && (
+        // Target accepting or declining
+        (resource.data.toUid == request.auth.uid 
+          && resource.data.status == "PENDING"
+          && (request.resource.data.status == "ACCEPTED" || request.resource.data.status == "DECLINED"))
+        ||
+        // Sender canceling
+        (resource.data.fromUid == request.auth.uid
+          && resource.data.status == "PENDING"
+          && request.resource.data.status == "CANCELED")
+      );
+      
+      // Delete: Sender can delete request
+      allow delete: if isAuthenticated()
+        && resource.data.fromUid == request.auth.uid;
+    }
+
+    // --- Inbox Subcollection ---
+    match /inbox/{userId}/items/{itemId} {
+      // Only owner can read their inbox
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      // System creates inbox items (via batch with request creation)
+      // In real production, this would be done via backend/Cloud Functions
+      // For MVP, allow creating if authenticated (sender creates for target)
+      allow create: if isAuthenticated();
+      
+      // Only owner can update their inbox items (mark as read)
+      allow update: if isAuthenticated() && isOwner(userId);
+      
+      // Only owner can delete their inbox items
+      allow delete: if isAuthenticated() && isOwner(userId);
     }
   }
 }

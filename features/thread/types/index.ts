@@ -3,6 +3,8 @@ import { Timestamp } from "firebase/firestore";
 export interface Thread {
   id: string;
   title: string;
+  titleLower?: string;
+  titleTokens?: string[];
   body: string;
   authorId: string;
   createdAt: Timestamp;

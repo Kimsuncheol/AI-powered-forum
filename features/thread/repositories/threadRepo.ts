@@ -5,6 +5,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { ThreadCreateInput } from "../types";
+import { buildTitleTokens, normalizeTitleForSearch } from "../search/utils/titleSearch";
 
 const THREADS_COLLECTION = "threads";
 
@@ -34,8 +35,12 @@ export async function createThread(
   }
 
   // 2. Prepare Data
+  const titleLower = normalizeTitleForSearch(input.title);
+  const titleTokens = buildTitleTokens(input.title);
   const threadData = {
     title: input.title.trim(),
+    titleLower,
+    titleTokens,
     body: input.body.trim(),
     categoryId: input.categoryId,
     tagIds: input.tagIds || [],

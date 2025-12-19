@@ -18,13 +18,15 @@ export const authService = {
       // 1. Create Auth User
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      const displayName = user.displayName || email.split("@")[0];
 
       // 2. Create Firestore Profile
       // We use upsert to be safe, though set would work for new users.
       // Default role is 'user'.
       await userProfileRepo.upsertUserProfile(user.uid, {
         email: user.email || email,
-        displayName: user.displayName || email.split("@")[0], // Fallback display name
+        displayName,
+        displayNameLower: displayName.toLowerCase(),
         role: "user",
         createdAt: Date.now(),
       });
@@ -44,6 +46,7 @@ export const authService = {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
       const user = userCredential.user;
+      const displayName = user.displayName || "User";
 
       // 3. Ensure Profile Exists
       // Google users might already have a profile, so we definitely want upsert/merge behavior.
@@ -51,7 +54,8 @@ export const authService = {
       // For now, we'll just ensure the document exists with basic info.
       await userProfileRepo.upsertUserProfile(user.uid, {
         email: user.email || "",
-        displayName: user.displayName || "User",
+        displayName,
+        displayNameLower: displayName.toLowerCase(),
         // We do NOT overwrite role or createdAt if they exist, handled by repo merge logic?
         // Actually, our repo uses { merge: true }, so this is safe for existing fields like 'role'.
         // However, we shouldn't overwrite createdAt if it exists. 
@@ -71,7 +75,8 @@ export const authService = {
       
        await userProfileRepo.upsertUserProfile(user.uid, {
         email: user.email || "",
-        displayName: user.displayName || "User",
+        displayName,
+        displayNameLower: displayName.toLowerCase(),
       });
 
       return user;
