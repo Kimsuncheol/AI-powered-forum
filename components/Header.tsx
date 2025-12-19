@@ -73,9 +73,16 @@ export default function Header() {
               <Skeleton variant="circular" width={40} height={40} />
             ) : user ? (
               <>
-                <Link href="/thread/new" className="text-decoration-none mr-1">
-                  <AddCircleOutlineOutlined />
-                </Link>
+                <Button
+                  component={Link}
+                  href="/threads/new"
+                  variant="contained"
+                  color="primary"
+                  startIcon={<AddCircleOutlineOutlined />}
+                  sx={{ mr: 2, textTransform: "none", borderRadius: 2 }}
+                >
+                  New Thread
+                </Button>
                 <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
                   <Avatar
                     alt={user.displayName || "User"}

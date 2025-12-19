@@ -1,14 +1,9 @@
 "use client";
 
+import { authService } from "@/features/auth/services/auth.service";
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
-import { 
-  signInWithGoogle, 
-  signOut as authSignOut,
-  signInWithEmail,
-  signUpWithEmail
-} from "@/lib/auth";
 import { auth as firebaseAuth } from "@/lib/firebase";
 
 interface AuthContextType {
@@ -35,9 +30,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+
+
   const handleSignInWithGoogle = async () => {
     try {
-      await signInWithGoogle();
+      await authService.signInWithGoogle();
     } catch (error) {
       console.error("Error signing in with Google", error);
       throw error;
@@ -46,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignInWithEmail = async (email: string, password: string) => {
     try {
-      await signInWithEmail(email, password);
+      await authService.signInWithEmail(email, password);
     } catch (error) {
       console.error("Error signing in with email", error);
       throw error;
@@ -55,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const handleSignUp = async (email: string, password: string) => {
     try {
-      await signUpWithEmail(email, password);
+      await authService.signUp(email, password);
     } catch (error) {
       console.error("Error signing up", error);
       throw error;
@@ -64,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      await authSignOut();
+      await authService.signOut();
     } catch (error) {
       console.error("Error signing out", error);
     }

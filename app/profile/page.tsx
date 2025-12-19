@@ -1,9 +1,9 @@
-import ProfileView from "@/features/profile";
+import ProfilePage from "@/features/profile";
 
-export default function ProfilePage() {
+export default function Page() {
   return (
     <main>
-      <ProfileView />
+      <ProfilePage />
     </main>
   );
 }

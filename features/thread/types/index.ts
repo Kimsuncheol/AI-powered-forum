@@ -11,6 +11,13 @@ export interface Thread {
   categoryId: string;
 }
 
+export interface ThreadCreateInput {
+  title: string;
+  body: string;
+  categoryId: string;
+  tagIds?: string[];
+}
+
 export interface Comment {
   id: string;
   threadId: string;
