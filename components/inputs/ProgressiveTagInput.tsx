@@ -170,7 +170,7 @@ export function ProgressiveTagInput({
       </Box>
 
       {/* Helper text / count */}
-      <FormHelperText sx={{ mt: 0.5 }}>
+      <FormHelperText sx={{ mt: '1rem' }}>
         {helperText || `${value.length}/${maxTags} tags`}
       </FormHelperText>
     </Box>

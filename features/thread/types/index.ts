@@ -11,6 +11,10 @@ export interface Thread {
   updatedAt: Timestamp;
   tagIds: string[];
   categoryId: string;
+  type: 'text' | 'markdown' | 'link' | 'video' | 'audio';
+  linkUrl?: string;
+  mediaUrl?: string;
+  imageUrls?: string[];
 }
 
 export interface ThreadCreateInput {
@@ -18,6 +22,10 @@ export interface ThreadCreateInput {
   body: string;
   categoryId: string;
   tagIds?: string[];
+  type: 'text' | 'markdown' | 'link' | 'video' | 'audio';
+  linkUrl?: string;
+  mediaUrl?: string;
+  imageUrls?: string[];
 }
 
 export interface Comment {

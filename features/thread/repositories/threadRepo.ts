@@ -24,8 +24,15 @@ export async function createThread(
   if (!input.title || input.title.trim().length < 3) {
     throw new Error("Title must be at least 3 characters long.");
   }
-  if (!input.body || input.body.trim().length === 0) {
+  // Body validation: required for text/markdown, optional for link/video/audio
+  if (!['link', 'video', 'audio'].includes(input.type || 'text') && (!input.body || input.body.trim().length === 0)) {
     throw new Error("Body content is required.");
+  }
+  if (input.type === 'link' && (!input.linkUrl || input.linkUrl.trim().length === 0)) {
+    throw new Error("Link URL is required.");
+  }
+  if ((input.type === 'video' || input.type === 'audio') && (!input.mediaUrl || input.mediaUrl.trim().length === 0)) {
+    throw new Error("Media URL is required.");
   }
   if (!input.categoryId) {
     throw new Error("Category is required.");
@@ -45,6 +52,10 @@ export async function createThread(
     categoryId: input.categoryId,
     tagIds: input.tagIds || [],
     authorId,
+    type: input.type || 'text',
+    linkUrl: input.linkUrl || null,
+    mediaUrl: input.mediaUrl || null,
+    imageUrls: input.imageUrls || [],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };

@@ -54,10 +54,6 @@ export default function Dashboard() {
 
   return (
     <Container sx={{ py: 2, height: "100vh", overflowY: "auto" }}>
-      <Typography variant="h4" fontWeight="bold" gutterBottom>
-        Discussions
-      </Typography>
-
       {/* Feed Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
         <Tabs

@@ -13,11 +13,16 @@ import {
   Stack,
   Box,
   Typography,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
+import { TextFields, Code, Link as LinkIcon, VideoLibrary, Audiotrack } from "@mui/icons-material";
 import { ThreadCreateInput } from "../../types";
 import { useRouter } from "next/navigation";
 import { CATEGORIES } from "@/features/meta/categories";
 import { ProgressiveTagInput } from "@/components/inputs/ProgressiveTagInput";
+import { MarkdownEditor } from "./MarkdownEditor";
+import { ImageDropZone } from "./ImageDropZone";
 
 interface CreateThreadFormProps {
   onSubmit: (data: ThreadCreateInput) => Promise<void>;
@@ -29,17 +34,25 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [mode, setMode] = useState<'text' | 'markdown' | 'link' | 'video' | 'audio'>('text');
+  const [linkUrl, setLinkUrl] = useState("");
+  const [mediaUrl, setMediaUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [tagIds, setTagIds] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
   
-  const [touched, setTouched] = useState({ title: false, body: false, category: false });
+  const [touched, setTouched] = useState({ title: false, body: false, category: false, linkUrl: false, mediaUrl: false });
 
   const validate = () => {
-    const errors: { title?: string; body?: string; category?: string } = {};
+    const errors: { title?: string; body?: string; category?: string; linkUrl?: string; mediaUrl?: string } = {};
     if (!title.trim()) errors.title = "Title is required";
     else if (title.length > 120) errors.title = "Title must be 120 characters or less";
     
-    if (!body.trim()) errors.body = "Body content is required";
+    if (!['link', 'video', 'audio'].includes(mode) && !body.trim()) errors.body = "Body content is required";
+    if (mode === 'link' && !linkUrl.trim()) errors.linkUrl = "URL is required";
+    if (mode === 'link' && linkUrl.trim() && !/^https?:\/\/.+/.test(linkUrl)) errors.linkUrl = "URL must start with http:// or https://";
+    if ((mode === 'video' || mode === 'audio') && !mediaUrl.trim()) errors.mediaUrl = "Media URL is required";
+    if ((mode === 'video' || mode === 'audio') && mediaUrl.trim() && !/^https?:\/\/.+/.test(mediaUrl)) errors.mediaUrl = "URL must start with http:// or https://";
     if (!categoryId) errors.category = "Category is required";
     
     return errors;
@@ -50,7 +63,7 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setTouched({ title: true, body: true, category: true });
+    setTouched({ title: true, body: true, category: true, linkUrl: true, mediaUrl: true });
     
     if (!isValid) return;
 
@@ -63,6 +76,10 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
         body: body.trim(),
         categoryId,
         tagIds: sanitizedTags,
+        type: mode,
+        linkUrl: mode === 'link' ? linkUrl : undefined,
+        mediaUrl: (mode === 'video' || mode === 'audio') ? mediaUrl : undefined,
+        imageUrls: images.length > 0 ? images : undefined,
       });
     } catch {
       // Error handled by parent
@@ -128,19 +145,137 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
               maxTags={5}
             />
 
-            <TextField
-              label="Body"
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              onBlur={() => setTouched(prev => ({ ...prev, body: true }))}
-              error={touched.body && !!errors.body}
-              helperText={touched.body && errors.body}
-              required
-              fullWidth
-              multiline
-              minRows={6}
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                <ToggleButtonGroup
+                  value={mode}
+                  exclusive
+                  onChange={(_, newMode) => {
+                    if (newMode) setMode(newMode);
+                  }}
+                  aria-label="editor mode"
+                  size="small"
+                >
+                  <ToggleButton value="text" aria-label="plain text" sx={{ px: 2 }}>
+                    <TextFields fontSize="small" sx={{ mr: 1 }} />
+                    Text
+                  </ToggleButton>
+                  <ToggleButton value="markdown" aria-label="markdown" sx={{ px: 2 }}>
+                    <Code fontSize="small" sx={{ mr: 1 }} />
+                    Markdown
+                  </ToggleButton>
+                  <ToggleButton value="link" aria-label="link" sx={{ px: 2 }}>
+                    <LinkIcon fontSize="small" sx={{ mr: 1 }} />
+                    Link
+                  </ToggleButton>
+                  <ToggleButton value="video" aria-label="video" sx={{ px: 2 }}>
+                    <VideoLibrary fontSize="small" sx={{ mr: 1 }} />
+                    Video
+                  </ToggleButton>
+                  <ToggleButton value="audio" aria-label="audio" sx={{ px: 2 }}>
+                    <Audiotrack fontSize="small" sx={{ mr: 1 }} />
+                    Audio
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+
+              {mode === 'text' && (
+                <TextField
+                  label="Body"
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  onBlur={() => setTouched(prev => ({ ...prev, body: true }))}
+                  error={touched.body && !!errors.body}
+                  helperText={touched.body && errors.body}
+                  required
+                  fullWidth
+                  multiline
+                  minRows={6}
+                  disabled={loading}
+                  placeholder="Elaborate on your topic..."
+                />
+              )}
+
+              {mode === 'markdown' && (
+                <Box>
+                  <MarkdownEditor
+                    value={body}
+                    onChange={setBody}
+                    disabled={loading}
+                    placeholder="Elaborate on your topic using Markdown..."
+                    minHeight="300px"
+                  />
+                  {(touched.body && !!errors.body) && (
+                     <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                       {errors.body}
+                     </Typography>
+                  )}
+                </Box>
+              )}
+
+              {mode === 'link' && (
+                <Box>
+                  <TextField
+                    label="URL"
+                    value={linkUrl}
+                    onChange={(e) => setLinkUrl(e.target.value)}
+                    onBlur={() => setTouched(prev => ({ ...prev, linkUrl: true }))}
+                    error={touched.linkUrl && !!errors.linkUrl}
+                    helperText={touched.linkUrl && errors.linkUrl}
+                    required
+                    fullWidth
+                    sx={{ mb: 2 }}
+                    disabled={loading}
+                    placeholder="https://example.com"
+                  />
+                   <TextField
+                    label="Description (Optional)"
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    fullWidth
+                    multiline
+                    minRows={3}
+                    disabled={loading}
+                    placeholder="Add a short description..."
+                  />
+                </Box>
+              )}
+
+              {(mode === 'video' || mode === 'audio') && (
+                <Box>
+                  <TextField
+                    label={mode === 'video' ? "Video URL" : "Audio URL"}
+                    value={mediaUrl}
+                    onChange={(e) => setMediaUrl(e.target.value)}
+                    onBlur={() => setTouched(prev => ({ ...prev, mediaUrl: true }))}
+                    error={touched.mediaUrl && !!errors.mediaUrl}
+                    helperText={(touched.mediaUrl && errors.mediaUrl) || (mode === 'video' ? "Supports YouTube, Vimeo, and direct video URLs" : "Supports MP3, WAV, and other audio formats")}
+                    required
+                    fullWidth
+                    sx={{ mb: 2 }}
+                    disabled={loading}
+                    placeholder={mode === 'video' ? "https://youtube.com/watch?v=..." : "https://example.com/audio.mp3"}
+                  />
+                  <TextField
+                    label="Description (Optional)"
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    fullWidth
+                    multiline
+                    minRows={3}
+                    disabled={loading}
+                    placeholder="Add a short description..."
+                  />
+                </Box>
+              )}
+            </Box>
+
+            {/* Image Drop Zone - Available in All Modes */}
+            <ImageDropZone
+              images={images}
+              onChange={setImages}
               disabled={loading}
-              placeholder="Elaborate on your topic..."
+              maxImages={4}
             />
           </Stack>
         </CardContent>

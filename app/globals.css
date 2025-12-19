@@ -24,3 +24,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* .cm-editor {
+  background-color: #282c34;
+}
+.cm-gutters {
+  background-color: #282c34;
+} */
