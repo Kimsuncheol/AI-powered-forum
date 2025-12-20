@@ -10,6 +10,9 @@ import {
   CardActionArea,
   Avatar,
   Stack,
+  Collapse,
+  IconButton,
+  Button,
 } from "@mui/material";
 import { Favorite, Comment } from "@mui/icons-material";
 import { Thread } from "../types";
@@ -21,6 +24,7 @@ import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import { Link as LinkIcon, OpenInNew, VideoLibrary, Audiotrack } from "@mui/icons-material";
 import "react-h5-audio-player/lib/styles.css";
+import CommentSection from "./CommentSection";
 
 // Dynamic imports for SSR safety
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as React.ComponentType<{
@@ -42,6 +46,7 @@ import { useSettings } from "@/context/SettingsContext";
 
 function ThreadCard({ thread, onClick }: ThreadCardProps) {
   const { autoPlayEnabled } = useSettings();
+  const [showComments, setShowComments] = React.useState(false);
   
   // Safe date handling - use a stable fallback
   const getCreatedAtMillis = () => {
@@ -54,6 +59,12 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
   };
 
   const timeAgo = formatDistanceToNow(getCreatedAtMillis(), { addSuffix: true });
+
+  const handleCommentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowComments(!showComments);
+  };
 
   return (
     <Card
@@ -91,11 +102,11 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
           {/* Snippet */}
             {thread.type === 'link' && thread.linkUrl ? (
               <Box 
-                component="a" 
-                href={thread.linkUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
+                component="div"
+                onClick={(e) => {
+                   e.preventDefault();
+                   window.open(thread.linkUrl, '_blank', 'noopener,noreferrer');
+                }}
                 sx={{ 
                   display: 'flex', 
                   alignItems: 'center', 
@@ -259,7 +270,10 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
                 ))}
               </Box>
             )}
+        </CardContent>
+      </CardActionArea>
 
+      <CardContent sx={{ pt: 0, pb: 1, '&:last-child': { pb: 1 } }}>
           {/* Footer: Tags & Stats */}
           <Box
             sx={{
@@ -279,8 +293,10 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
                   sx={{ 
                     borderRadius: 1, 
                     fontSize: "0.7rem", 
-                    height: 20 
+                    height: 20,
+                    cursor: 'pointer'
                   }}
+                  onClick={(e) => { e.stopPropagation(); /* TODO: Navigate to tag search */ }}
                 />
               ))}
               {(thread.tagIds?.length || 0) > 3 && (
@@ -290,20 +306,34 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
               )}
             </Box>
 
-            {/* Mock Stats (since they are not in the core type yet) */}
-            <Stack direction="row" spacing={2} color="text.secondary">
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <Favorite fontSize="small" sx={{ fontSize: 16 }} color="disabled" />
-                <Typography variant="caption">0</Typography>
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <Comment fontSize="small" sx={{ fontSize: 16 }} color="disabled" />
-                <Typography variant="caption">0</Typography>
-              </Box>
+            {/* Actions */}
+            <Stack direction="row" spacing={1} color="text.secondary" alignItems="center">
+              <IconButton size="small" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
+                 <Favorite fontSize="small" sx={{ fontSize: 18 }} color="disabled" />
+              </IconButton>
+              
+              <Button 
+                size="small" 
+                startIcon={<Comment sx={{ fontSize: 18 }} />}
+                sx={{ 
+                  color: showComments ? 'primary.main' : 'text.secondary', 
+                  minWidth: 'auto',
+                  px: 1
+                }}
+                onClick={handleCommentClick}
+              >
+                  {thread.commentsCount || 0}
+              </Button>
             </Stack>
           </Box>
-        </CardContent>
-      </CardActionArea>
+      </CardContent>
+      
+      {/* Comments Expansion */}
+      <Collapse in={showComments} timeout="auto" unmountOnExit>
+         <Box sx={{ p: 2, bgcolor: "background.paper", borderTop: 1, borderColor: "divider" }} onClick={(e) => e.stopPropagation()}>
+            <CommentSection threadId={thread.id} />
+         </Box>
+      </Collapse>
     </Card>
   );
 }

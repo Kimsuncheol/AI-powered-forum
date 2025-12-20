@@ -11,21 +11,20 @@ import {
   Button,
   Divider,
   CircularProgress,
-  Stack,
   Alert,
 } from "@mui/material";
 import { AutoAwesome, ArrowBack } from "@mui/icons-material";
 import { useParams, useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
-import { Thread, Comment, getThread, getComments } from "@/lib/db/threads";
+import { Thread, getThread } from "@/lib/db/threads";
 import { summarizeThread } from "@/lib/api/ai";
 import ReactMarkdown from "react-markdown";
+import CommentSection from "@/features/thread/components/CommentSection";
 
 export default function ThreadDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [thread, setThread] = useState<Thread | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<string | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
@@ -40,8 +39,6 @@ export default function ThreadDetailPage() {
           setError("Thread not found.");
         } else {
           setThread(t);
-          const c = await getComments(id);
-          setComments(c);
         }
       } catch (err) {
         console.error(err);
@@ -163,28 +160,7 @@ export default function ThreadDetailPage() {
       </Paper>
 
       {/* Comments Section */}
-      <Typography variant="h5" fontWeight="bold" gutterBottom>
-        Comments ({comments.length})
-      </Typography>
-      
-      <Stack spacing={2}>
-        {comments.map((comment) => (
-          <Paper key={comment.id} elevation={1} sx={{ p: 2, borderRadius: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-              <Typography variant="subtitle2" fontWeight="bold">
-                {comment.authorName}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {formatDistanceToNow(comment.createdAt)} ago
-              </Typography>
-            </Box>
-            <Typography variant="body2">{comment.content}</Typography>
-          </Paper>
-        ))}
-        {comments.length === 0 && (
-            <Typography color='text.secondary'>No comments yet.</Typography>
-        )}
-      </Stack>
+      <CommentSection threadId={id} />
     </Container>
   );
 }

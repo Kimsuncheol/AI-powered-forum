@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface SettingsContextType {
   autoPlayEnabled: boolean;
@@ -10,17 +10,16 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [autoPlayEnabled, setAutoPlayEnabled] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("settings_autoPlay");
-    if (stored !== null) {
-      setAutoPlayEnabled(JSON.parse(stored));
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("settings_autoPlay");
+      return stored !== null ? JSON.parse(stored) : false;
     }
-  }, []);
+    return false;
+  });
 
   const toggleAutoPlay = () => {
-    setAutoPlayEnabled((prev) => {
+    setAutoPlayEnabled((prev: boolean) => {
       const newValue = !prev;
       localStorage.setItem("settings_autoPlay", JSON.stringify(newValue));
       return newValue;

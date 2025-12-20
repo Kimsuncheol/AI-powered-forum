@@ -3,7 +3,6 @@
 import React, { useEffect } from "react";
 import { Box, Typography, Stack, Skeleton } from "@mui/material";
 import VirtualThreadFeed from "@/features/dashboard/components/VirtualThreadFeed";
-import InfiniteScrollSentinel from "@/components/InfiniteScrollSentinel";
 import { useInfiniteThreadFeed } from "@/features/thread/hooks/useInfiniteThreadFeed";
 // Note: Although the user asked for InfiniteScrollSentinel, I'm opting to use VirtualThreadFeed because
 // 1. It is the modern approach we just built
@@ -44,7 +43,7 @@ export default function MyThreadsTab({ uid }: MyThreadsTabProps) {
   if (threads.length === 0) {
     return (
       <Box sx={{ py: 8, textAlign: "center" }}>
-        <Typography color="text.secondary">You haven't posted any threads yet.</Typography>
+        <Typography color="text.secondary">You haven&apos;t posted any threads yet.</Typography>
       </Box>
     );
   }

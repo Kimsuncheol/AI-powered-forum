@@ -14,37 +14,34 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<Mode>("system");
-  const [resolvedMode, setResolvedMode] = useState<"light" | "dark">("light");
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedMode = localStorage.getItem("themeMode") as Mode | null;
-    if (savedMode) {
-      setMode(savedMode);
+  const [mode, setMode] = useState<Mode>(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("themeMode") as Mode) || "system";
     }
-  }, []);
+    return "system";
+  });
 
-  // System preference listener
+  const [systemIsDark, setSystemIsDark] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    return false;
+  });
+
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     
-    const handleChange = () => {
-      if (mode === "system") {
-        setResolvedMode(mediaQuery.matches ? "dark" : "light");
-      }
+    const handleChange = (e: MediaQueryListEvent) => {
+      setSystemIsDark(e.matches);
     };
-
-    // Calculate effective mode
-    const effectiveMode = mode === "system" 
-      ? (mediaQuery.matches ? "dark" : "light") 
-      : mode;
-
-    setResolvedMode((prev) => (prev !== effectiveMode ? effectiveMode : prev));
 
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [mode]);
+  }, []);
+
+  const resolvedMode = mode === "system" 
+    ? (systemIsDark ? "dark" : "light") 
+    : mode === "dark" ? "dark" : "light";
 
   const toggleMode = () => {
     setMode((prev) => {

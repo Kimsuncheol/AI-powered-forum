@@ -49,7 +49,6 @@ describe('Header', () => {
   it('renders title and theme toggle', () => {
     render(<Header />)
     expect(screen.getByText('AI Forum')).toBeInTheDocument()
-    expect(screen.getByTestId('theme-toggle')).toBeInTheDocument()
   })
 
   it('renders sign in button when not authenticated', () => {

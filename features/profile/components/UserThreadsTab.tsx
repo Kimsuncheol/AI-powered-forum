@@ -36,7 +36,7 @@ export default function UserThreadsTab({ uid }: UserThreadsTabProps) {
   if (threads.length === 0) {
     return (
       <Box sx={{ py: 4, textAlign: "center" }}>
-        <Typography color="text.secondary">You haven't posted any threads yet.</Typography>
+        <Typography color="text.secondary">You haven&apos;t posted any threads yet.</Typography>
       </Box>
     );
   }

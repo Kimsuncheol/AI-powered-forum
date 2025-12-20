@@ -15,6 +15,7 @@ export interface Thread {
   linkUrl?: string;
   mediaUrl?: string;
   imageUrls?: string[];
+  commentsCount?: number;
 }
 
 export interface ThreadCreateInput {
@@ -35,4 +36,8 @@ export interface Comment {
   authorId: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  parentId?: string | null;
+  replyCount?: number;
+  userDisplayName?: string;
+  userPhotoURL?: string;
 }

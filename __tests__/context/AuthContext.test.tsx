@@ -3,6 +3,12 @@ import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { onAuthStateChanged } from 'firebase/auth'
 import { authService } from '@/features/auth/services/auth.service'
 
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+  usePathname: jest.fn(),
+}))
+
 // Mock Firebase
 jest.mock('firebase/auth', () => ({
   onAuthStateChanged: jest.fn(),

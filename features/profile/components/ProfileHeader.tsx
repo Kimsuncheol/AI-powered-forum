@@ -44,7 +44,7 @@ export default function ProfileHeader({ user, profile, loading }: ProfileHeaderP
         
         <Box sx={{ mt: 1, display: "flex", gap: 1, justifyContent: { xs: "center", sm: "flex-start" } }}>
           <Chip label={profile?.role || "User"} color="primary" size="small" variant="outlined" />
-          <Chip label={`Joined ${new Date(user.metadata.creationTime || Date.now()).toLocaleDateString()}`} size="small" variant="outlined" />
+          <Chip label={`Joined ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : "N/A"}`} size="small" variant="outlined" />
         </Box>
       </Box>
     </Box>

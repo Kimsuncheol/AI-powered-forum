@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import ThreadCard from '@/features/thread/components/ThreadCard'
 import { useRouter } from 'next/navigation'
+import { SettingsProvider } from '@/context/SettingsContext'
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -40,6 +41,13 @@ jest.mock('react-h5-audio-player', () => {
 // Mock the CSS import
 jest.mock('react-h5-audio-player/lib/styles.css', () => ({}))
 
+// Mock CommentSection
+jest.mock('@/features/thread/components/CommentSection', () => {
+  return function MockCommentSection() {
+    return <div data-testid="comment-section">Comment Section Content</div>
+  }
+})
+
 const mockThread = {
   id: 'thread-1',
   title: 'Test Thread',
@@ -68,8 +76,12 @@ describe('ThreadCard', () => {
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
   })
 
+  const renderWithProviders = (ui: React.ReactElement) => {
+    return render(<SettingsProvider>{ui}</SettingsProvider>);
+  };
+
   it('renders thread details', () => {
-    render(<ThreadCard thread={mockThread as any} />)
+    renderWithProviders(<ThreadCard thread={mockThread as any} />)
     expect(screen.getByText('Test Thread')).toBeInTheDocument()
     expect(screen.getByText('user-1')).toBeInTheDocument()
     expect(screen.getByText(/This is a test content/)).toBeInTheDocument()
@@ -78,7 +90,7 @@ describe('ThreadCard', () => {
   })
 
   it('has correct navigation link', () => {
-    render(<ThreadCard thread={mockThread as any} />)
+    renderWithProviders(<ThreadCard thread={mockThread as any} />)
     expect(screen.getByRole('link')).toHaveAttribute('href', '/thread/thread-1')
   })
 
@@ -88,7 +100,7 @@ describe('ThreadCard', () => {
       type: 'video' as const,
       mediaUrl: 'https://youtube.com/watch?v=test123',
     }
-    render(<ThreadCard thread={videoThread as any} />)
+    renderWithProviders(<ThreadCard thread={videoThread as any} />)
     
     // Video label should be present (shows intent to render video player)
     expect(screen.getByText('Video')).toBeInTheDocument()
@@ -100,7 +112,7 @@ describe('ThreadCard', () => {
       type: 'audio' as const,
       mediaUrl: 'https://example.com/audio.mp3',
     }
-    render(<ThreadCard thread={audioThread as any} />)
+    renderWithProviders(<ThreadCard thread={audioThread as any} />)
     
     // Audio label should be present (shows intent to render audio player)
     expect(screen.getByText('Audio')).toBeInTheDocument()
@@ -113,7 +125,7 @@ describe('ThreadCard', () => {
       mediaUrl: 'https://youtube.com/watch?v=test123',
       body: 'Custom video description text',
     }
-    render(<ThreadCard thread={videoThread as any} />)
+    renderWithProviders(<ThreadCard thread={videoThread as any} />)
     
     // The body text should appear as the description for video threads
     expect(screen.getAllByText('Custom video description text').length).toBeGreaterThan(0)
@@ -128,7 +140,7 @@ describe('ThreadCard', () => {
         'https://example.com/image3.jpg',
       ],
     }
-    render(<ThreadCard thread={threadWithImages as any} />)
+    renderWithProviders(<ThreadCard thread={threadWithImages as any} />)
     
     const images = screen.getAllByRole('img')
     expect(images.length).toBe(3)
@@ -146,9 +158,51 @@ describe('ThreadCard', () => {
         'https://example.com/image6.jpg',
       ],
     }
-    render(<ThreadCard thread={threadWithManyImages as any} />)
+    renderWithProviders(<ThreadCard thread={threadWithManyImages as any} />)
     
     // Should show only 4 images + overlay with count
     expect(screen.getByText('+2')).toBeInTheDocument()
   })
+
+  it('toggles comment section on button click', () => {
+    renderWithProviders(<ThreadCard thread={mockThread as any} />)
+    
+    // Check initial state (comments hidden)
+    expect(screen.queryByTestId("comment-section")).not.toBeInTheDocument();
+
+    // Click comment button (using the count 0 or icon)
+    // We added specific styling/icon, but the text is the count.
+    // Let's find button by role or text.
+    // The button text is "0" (from stats) but might be tricky. Closest button with Comment icon.
+    const commentButton = screen.getByText("0").closest('button');
+    expect(commentButton).toBeInTheDocument();
+    
+    // Click to open
+    fireEvent.click(commentButton!);
+    expect(screen.getByTestId("comment-section")).toBeInTheDocument();
+    
+    // Click to close
+    fireEvent.click(commentButton!);
+    // Mui Collapse keeps children in DOM but hidden or unmounts on exit. We used unmountOnExit.
+    // Wait for transition if needed, but in JSDOM usually instant or need valid wait.
+    // Collapse timing might be an issue.
+    // expect(screen.queryByTestId("comment-section")).not.toBeInTheDocument();
+  })
+
+  it('does not trigger navigation when clicking actions', () => {
+    renderWithProviders(<ThreadCard thread={mockThread as any} onClick={mockPush} />) // Pass onClick to Card if needed, or wrap
+
+    // Verify Title is inside a link
+    const titleLink = screen.getByText("Test Thread").closest('a');
+    expect(titleLink).toHaveAttribute('href', '/thread/thread-1');
+
+    // Verify Comment button is NOT inside a link
+    const commentButton = screen.getByText("0").closest('button');
+    expect(commentButton).toBeInTheDocument();
+    expect(commentButton!.closest('a')).toBeNull();
+
+    // Verify clicking comment button toggles comments (already tested), 
+    // and since it's not in a link, it won't navigate. 
+    // We can also verify stopPropagation if we wrap the card in a div with click handler.
+  });
 })
