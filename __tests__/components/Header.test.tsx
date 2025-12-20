@@ -72,6 +72,19 @@ describe('Header', () => {
     expect(screen.getByText('T')).toBeInTheDocument()
   })
 
+  it('navigates to settings from user menu', () => {
+    setupAuth({ email: 'test@example.com', displayName: 'Test User' })
+    render(<Header />)
+    
+    // Open menu
+    const avatarButton = screen.getByText('T').closest('button')
+    fireEvent.click(avatarButton!)
+    
+    // Click settings
+    fireEvent.click(screen.getByText('Settings'))
+    expect(mockPush).toHaveBeenCalledWith('/settings')
+  })
+
   it('navigates to search on search bar click', () => {
     render(<Header />)
     const searchBar = screen.getByText('Search...').closest('div')

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import {
   TextField,
@@ -23,6 +24,13 @@ import { CATEGORIES } from "@/features/meta/categories";
 import { ProgressiveTagInput } from "@/components/inputs/ProgressiveTagInput";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { ImageDropZone } from "./ImageDropZone";
+import { AiImageModal } from "../../../ai/components/AiImageModal";
+import { AiVideoModal } from "../../../ai/components/AiVideoModal";
+import { AiMusicModal } from "../../../ai/components/AiMusicModal";
+import { AutoAwesome } from "@mui/icons-material";
+import ReactPlayer from "react-player";
+import AudioPlayer from "react-h5-audio-player";
+import "react-h5-audio-player/lib/styles.css";
 
 interface CreateThreadFormProps {
   onSubmit: (data: ThreadCreateInput) => Promise<void>;
@@ -40,6 +48,9 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
   const [categoryId, setCategoryId] = useState("");
   const [tagIds, setTagIds] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [musicModalOpen, setMusicModalOpen] = useState(false);
   
   const [touched, setTouched] = useState({ title: false, body: false, category: false, linkUrl: false, mediaUrl: false });
 
@@ -243,19 +254,42 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
 
               {(mode === 'video' || mode === 'audio') && (
                 <Box>
-                  <TextField
-                    label={mode === 'video' ? "Video URL" : "Audio URL"}
-                    value={mediaUrl}
-                    onChange={(e) => setMediaUrl(e.target.value)}
-                    onBlur={() => setTouched(prev => ({ ...prev, mediaUrl: true }))}
-                    error={touched.mediaUrl && !!errors.mediaUrl}
-                    helperText={(touched.mediaUrl && errors.mediaUrl) || (mode === 'video' ? "Supports YouTube, Vimeo, and direct video URLs" : "Supports MP3, WAV, and other audio formats")}
-                    required
-                    fullWidth
-                    sx={{ mb: 2 }}
-                    disabled={loading}
-                    placeholder={mode === 'video' ? "https://youtube.com/watch?v=..." : "https://example.com/audio.mp3"}
-                  />
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', mb: 2 }}>
+                    <TextField
+                      label={mode === 'video' ? "Video URL" : "Audio URL"}
+                      value={mediaUrl}
+                      onChange={(e) => setMediaUrl(e.target.value)}
+                      onBlur={() => setTouched(prev => ({ ...prev, mediaUrl: true }))}
+                      error={touched.mediaUrl && !!errors.mediaUrl}
+                      helperText={(touched.mediaUrl && errors.mediaUrl) || (mode === 'video' ? "Supports YouTube, Vimeo, and direct video URLs" : "Supports MP3, WAV, and other audio formats")}
+                      required
+                      fullWidth
+                      disabled={loading}
+                      placeholder={mode === 'video' ? "https://youtube.com/watch?v=..." : "https://example.com/audio.mp3"}
+                    />
+                     <Button
+                      startIcon={<AutoAwesome />}
+                      onClick={() => mode === 'video' ? setVideoModalOpen(true) : setMusicModalOpen(true)}
+                      variant="outlined"
+                      sx={{ height: 56, flexShrink: 0 }}
+                    >
+                      Generate
+                    </Button>
+                  </Box>
+
+                  {mode === 'video' && mediaUrl && (
+                    <Box sx={{ mt: 2, mb: 2, borderRadius: 2, overflow: 'hidden', border: '1px solid config.borderColor' }}>
+                      {/* @ts-expect-error ReactPlayer types compatibility issue */}
+                      <ReactPlayer url={mediaUrl} controls width="100%" />
+                    </Box>
+                  )}
+
+                  {mode === 'audio' && mediaUrl && (
+                    <Box sx={{ mt: 2, mb: 2 }}>
+                      <AudioPlayer src={mediaUrl} />
+                    </Box>
+                  )}
+
                   <TextField
                     label="Description (Optional)"
                     value={body}
@@ -277,6 +311,34 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
               disabled={loading}
               maxImages={4}
             />
+
+            <Button
+              startIcon={<AutoAwesome />}
+              onClick={() => setAiModalOpen(true)}
+              variant="outlined"
+              size="small"
+              sx={{ alignSelf: "flex-start" }}
+            >
+              Generate with AI
+            </Button>
+
+            <AiImageModal
+              open={aiModalOpen}
+              onClose={() => setAiModalOpen(false)}
+              onImageSelect={(imageUrl) => setImages(prev => [...prev, imageUrl])}
+            />
+
+            <AiVideoModal
+              open={videoModalOpen}
+              onClose={() => setVideoModalOpen(false)}
+              onVideoSelect={setMediaUrl}
+            />
+
+            <AiMusicModal
+              open={musicModalOpen}
+              onClose={() => setMusicModalOpen(false)}
+              onMusicSelect={setMediaUrl}
+            />
           </Stack>
         </CardContent>
         <CardActions sx={{ px: 2, pb: 2, justifyContent: "flex-end", gap: 1 }}>
@@ -291,6 +353,7 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
             type="submit"
             variant="contained"
             disabled={loading || !isValid}
+            onClick={handleSubmit}
           >
             {loading ? "Publishing..." : "Publish"}
           </Button>

@@ -5,6 +5,8 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { User } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth as firebaseAuth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface AuthContextType {
   user: User | null;
@@ -18,6 +20,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,8 +38,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleSignInWithGoogle = async () => {
     try {
       await authService.signInWithGoogle();
+      toast.success("You have been signed in", {
+        autoClose: 5000,
+        position: "top-right",
+      });
+      router.push("/");
     } catch (error) {
       console.error("Error signing in with Google", error);
+      toast.error("Failed to sign in", {
+        autoClose: 5000,
+        position: "top-right",
+      });
       throw error;
     }
   };
@@ -44,8 +56,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleSignInWithEmail = async (email: string, password: string) => {
     try {
       await authService.signInWithEmail(email, password);
+      toast.success("You have been signed in", {
+        autoClose: 5000,
+        position: "top-right",
+      });
+      router.push("/");
     } catch (error) {
       console.error("Error signing in with email", error);
+      toast.error("Failed to sign in", {
+        autoClose: 5000,
+        position: "top-right",
+      });
       throw error;
     }
   };
@@ -53,8 +74,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleSignUp = async (email: string, password: string) => {
     try {
       await authService.signUp(email, password);
+      toast.success("You have been signed up", {
+        autoClose: 5000,
+        position: "top-right",
+      });
+      router.push("/");
     } catch (error) {
       console.error("Error signing up", error);
+      toast.error("Failed to sign up", {
+        autoClose: 5000,
+        position: "top-right",
+      });
       throw error;
     }
   };
@@ -62,8 +92,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try {
       await authService.signOut();
+      toast.success("You have been signed out", {
+        autoClose: 5000,
+        position: "top-right",
+      });
+      router.push("/");
     } catch (error) {
       console.error("Error signing out", error);
+      toast.error("Failed to sign out", {
+        autoClose: 5000,
+        position: "top-right",
+      });
+      throw error;
     }
   };
 

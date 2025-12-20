@@ -3,11 +3,13 @@ import {
   signInWithPopup, 
   GoogleAuthProvider,
   signInWithEmailAndPassword,
-  signOut as firebaseSignOut
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword as firebaseUpdatePassword,
+  deleteUser as firebaseDeleteUser,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { userProfileRepo } from "@/features/profile/repositories/userProfileRepo";
-import { Timestamp } from "firebase/firestore";
 
 export const authService = {
   /**
@@ -95,5 +97,31 @@ export const authService = {
 
   signOut: async () => {
     return firebaseSignOut(auth);
+  },
+
+  reauthenticate: async (password: string) => {
+    const user = auth.currentUser;
+    if (!user || !user.email) throw new Error("No user logged in");
+    
+    // For Google users, re-auth needs pop-up, but for email/password users:
+    const credential = EmailAuthProvider.credential(user.email, password);
+    return reauthenticateWithCredential(user, credential);
+  },
+
+  updatePassword: async (newPassword: string) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No user logged in");
+    return firebaseUpdatePassword(user, newPassword);
+  },
+
+  deleteAccount: async () => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No user logged in");
+    
+    // Optionally delete from Firestore too, but Client SDK might not have permission 
+    // to delete other collections/subcollections easily without cloud functions.
+    // For now, just delete the user auth.
+    // Ideally, we mark the profile as deleted or use cloud functions to clean up.
+    await firebaseDeleteUser(user);
   }
 };

@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { SettingsProvider } from "@/context/SettingsContext";
 import Header from "@/components/Header";
 import { Container } from "@mui/material";
 
@@ -29,16 +30,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body>
         <AuthProvider>
-          <ThemeProvider>
-            <Header />
-            <Container maxWidth="lg">
-              {children}
-            </Container>
-          </ThemeProvider>
+          <SettingsProvider>
+            <ThemeProvider>
+              <Header />
+              <Container maxWidth="lg">
+                {children}
+              </Container>
+            </ThemeProvider>
+          </SettingsProvider>
         </AuthProvider>
       </body>
     </html>

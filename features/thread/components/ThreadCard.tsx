@@ -38,7 +38,11 @@ interface ThreadCardProps {
   onClick?: () => void;
 }
 
+import { useSettings } from "@/context/SettingsContext";
+
 function ThreadCard({ thread, onClick }: ThreadCardProps) {
+  const { autoPlayEnabled } = useSettings();
+  
   // Safe date handling - use a stable fallback
   const getCreatedAtMillis = () => {
     if (thread.createdAt instanceof Timestamp) {
@@ -158,9 +162,10 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
                 <ReactPlayer 
                   url={thread.mediaUrl} 
                   controls 
+                  playing={autoPlayEnabled}
                   width="100%" 
                   height="200px"
-                  light
+                  light={!autoPlayEnabled} // Use light mode if autoplay is off for better performance
                 />
               </Box>
             )}
@@ -176,6 +181,7 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
                 </Box>
                 <AudioPlayer
                   src={thread.mediaUrl}
+                  autoPlay={autoPlayEnabled}
                   showJumpControls={false}
                   layout="horizontal-reverse"
                   customVolumeControls={[]}

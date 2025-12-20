@@ -16,17 +16,24 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import ThemeToggle from "@/components/ThemeToggle";
 import { usePathname } from "next/navigation";
 import { AddCircleOutlineOutlined, Search as SearchIcon } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import InboxRoundedIcon from '@mui/icons-material/InboxRounded';
-
 export default function Header() {
   const { user, loading, signInWithGoogle, signOut } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <Box sx={{ height: 64, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }} />;
+  }
 
   if (pathname === "/signin" || pathname === "/signup") {
     return null;
@@ -91,8 +98,7 @@ export default function Header() {
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {/* Theme Toggle */}
-            <ThemeToggle />
+            {/* Theme Toggle moved to Settings page */}
 
             {/* Auth Controls */}
             {loading ? (
@@ -148,6 +154,10 @@ export default function Header() {
                       router.push("/profile");
                     handleMenuClose();
                   }}>Profile</MenuItem>
+                  <MenuItem onClick={() => {
+                      router.push("/settings");
+                    handleMenuClose();
+                  }}>Settings</MenuItem>
                   <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
                     Logout
                   </MenuItem>
