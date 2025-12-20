@@ -53,13 +53,23 @@ export function SearchPage() {
   const debouncedQuery = useDebouncedValue(query, DEBOUNCE_MS);
   const { threads, users, loading, error, search } = useSearch();
 
-  useEffect(() => {
-    const nextQuery = searchParams.get("q") ?? "";
-    const nextTab = normalizeTab(searchParams.get("tab"));
+  const urlQuery = searchParams.get("q") ?? "";
+  const urlTab = normalizeTab(searchParams.get("tab"));
+  
+  const [prevUrlQuery, setPrevUrlQuery] = useState(urlQuery);
+  const [prevUrlTab, setPrevUrlTab] = useState(urlTab);
 
-    setQuery((prev) => (prev !== nextQuery ? nextQuery : prev));
-    setTab((prev) => (prev !== nextTab ? nextTab : prev));
-  }, [searchParams]);
+  // Adjust state during render when URL params change (e.g. back button)
+  // This is the recommended pattern from React docs:
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  if (urlQuery !== prevUrlQuery) {
+    setPrevUrlQuery(urlQuery);
+    setQuery(urlQuery);
+  }
+  if (urlTab !== prevUrlTab) {
+    setPrevUrlTab(urlTab);
+    setTab(urlTab);
+  }
 
   useEffect(() => {
     const nextSearch = buildSearchParams(searchParams, query, tab);

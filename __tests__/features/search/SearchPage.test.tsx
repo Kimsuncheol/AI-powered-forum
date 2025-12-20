@@ -20,14 +20,13 @@ jest.mock('@/features/search/hooks/useDebouncedValue', () => ({
   useDebouncedValue: jest.fn((val) => val),
 }))
 
-// Mock child components
 jest.mock('@/features/thread/components/ThreadCard', () => ({
   __esModule: true,
-  default: ({ thread }: any) => <div data-testid="thread-card">{thread.title}</div>,
+  default: ({ thread }: { thread: { title: string } }) => <div data-testid="thread-card">{thread.title}</div>,
 }))
 
 jest.mock('@/features/search/components/UserCard', () => ({
-  UserCard: ({ user }: any) => <div data-testid="user-card">{user.displayName}</div>,
+  UserCard: ({ user }: { user: { displayName: string } }) => <div data-testid="user-card">{user.displayName}</div>,
 }))
 
 describe('SearchPage', () => {
@@ -52,31 +51,33 @@ describe('SearchPage', () => {
     expect(screen.getByText('Users')).toBeInTheDocument()
   })
 
-  it('initializes state from search params', () => {
+  it('initializes state from search params', async () => {
     (useSearchParams as jest.Mock).mockReturnValue(new URLSearchParams('?q=react&tab=users'))
     render(<SearchPage />)
     
-    // Check input value
-    expect(screen.getByPlaceholderText('Search threads or users')).toHaveValue('react')
-    // Check tab (MUI Tabs might be harder to check selected state without looking at attributes)
-    // We can assume state initialization works if UI reflects value.
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Search threads or users')).toHaveValue('react')
+    })
   })
 
-  it('calls search when query changes', () => {
+  it('calls search when query changes', async () => {
     render(<SearchPage />)
     const input = screen.getByPlaceholderText('Search threads or users')
     fireEvent.change(input, { target: { value: 'nextjs' } })
     
-    // useDebouncedValue is mocked to return immediately, so effect should fire
-    expect(mockSearch).toHaveBeenCalledWith('nextjs', 'threads')
+    await waitFor(() => {
+      expect(mockSearch).toHaveBeenCalledWith('nextjs', 'threads')
+    })
   })
 
-  it('updates URL when query changes', () => {
+  it('updates URL when query changes', async () => {
     render(<SearchPage />)
     const input = screen.getByPlaceholderText('Search threads or users')
     fireEvent.change(input, { target: { value: 'nextjs' } })
     
-    expect(mockReplace).toHaveBeenCalledWith('/search?q=nextjs&tab=threads', expect.anything())
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/search?q=nextjs&tab=threads', expect.anything())
+    })
   })
 
   it('renders threads results', () => {

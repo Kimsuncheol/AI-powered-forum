@@ -22,6 +22,9 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { SettingsProvider } from "@/context/SettingsContext";
 import Header from "@/components/Header";
 import { Container } from "@mui/material";
+// react-toastify
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function RootLayout({
   children,
@@ -33,11 +36,10 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <SettingsProvider>
+            <ToastContainer position="top-right" autoClose={3000} />
             <ThemeProvider>
               <Header />
-              <Container maxWidth="lg">
-                {children}
-              </Container>
+              <Container maxWidth="lg">{children}</Container>
             </ThemeProvider>
           </SettingsProvider>
         </AuthProvider>

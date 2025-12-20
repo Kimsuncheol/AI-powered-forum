@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import InboxRoundedIcon from '@mui/icons-material/InboxRounded';
 import SignInModal from "@/features/auth/components/SignInModal";
 import SignUpModal from "@/features/auth/components/SignUpModal";
+import SearchModal from "@/features/search/components/SearchModal";
 
 export default function Header() {
   const { user, loading, signOut } = useAuth();
@@ -29,6 +30,7 @@ export default function Header() {
   const [mounted, setMounted] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
   const [signUpOpen, setSignUpOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -94,7 +96,7 @@ export default function Header() {
                 bgcolor: "action.selected",
               },
             }}
-            onClick={() => router.push("/search")}
+            onClick={() => setSearchOpen(true)}
           >
             <SearchIcon sx={{ color: "text.secondary", mr: 1 }} />
             <Typography variant="body2" color="text.secondary">
@@ -198,6 +200,11 @@ export default function Header() {
           setSignUpOpen(false);
           setSignInOpen(true);
         }}
+      />
+      <SearchModal
+        key={String(searchOpen)}
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
       />
     </AppBar>
   );

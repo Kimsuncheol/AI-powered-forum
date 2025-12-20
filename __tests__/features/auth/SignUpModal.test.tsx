@@ -16,10 +16,7 @@ const renderWithAuth = (ui: React.ReactNode) => {
         signInWithEmail: jest.fn(),
         signInWithGoogle: jest.fn(),
         signOut: jest.fn(),
-        reauthenticate: jest.fn(),
-        updatePassword: jest.fn(),
-        deleteUserAccount: jest.fn(),
-      } as any}
+      }}
     >
       {ui}
     </AuthContext.Provider>
