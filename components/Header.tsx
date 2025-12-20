@@ -20,10 +20,15 @@ import { usePathname } from "next/navigation";
 import { AddCircleOutlineOutlined, Search as SearchIcon } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import InboxRoundedIcon from '@mui/icons-material/InboxRounded';
+import SignInModal from "@/features/auth/components/SignInModal";
+import SignUpModal from "@/features/auth/components/SignUpModal";
+
 export default function Header() {
-  const { user, loading, signInWithGoogle, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mounted, setMounted] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
+  const [signUpOpen, setSignUpOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -167,7 +172,8 @@ export default function Header() {
               <Button
                 color="primary"
                 variant="contained"
-                onClick={() => signInWithGoogle()}
+                onClick={() => setSignInOpen(true)}
+                sx={{ textTransform: "none" }}
               >
                 Sign In
               </Button>
@@ -175,6 +181,24 @@ export default function Header() {
           </Box>
         </Toolbar>
       </Container>
+      
+      {/* Auth Modals */}
+      <SignInModal 
+        open={signInOpen} 
+        onClose={() => setSignInOpen(false)} 
+        onSwitchToSignUp={() => {
+          setSignInOpen(false);
+          setSignUpOpen(true);
+        }}
+      />
+      <SignUpModal
+        open={signUpOpen}
+        onClose={() => setSignUpOpen(false)}
+        onSwitchToSignIn={() => {
+          setSignUpOpen(false);
+          setSignInOpen(true);
+        }}
+      />
     </AppBar>
   );
 }

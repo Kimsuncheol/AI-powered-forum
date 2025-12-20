@@ -7,6 +7,7 @@ import {
   EmailAuthProvider,
   updatePassword as firebaseUpdatePassword,
   deleteUser as firebaseDeleteUser,
+  signOut as firebaseSignOut,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { userProfileRepo } from "@/features/profile/repositories/userProfileRepo";

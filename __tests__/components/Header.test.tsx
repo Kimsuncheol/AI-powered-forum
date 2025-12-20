@@ -57,12 +57,14 @@ describe('Header', () => {
     expect(screen.getByText('Sign In')).toBeInTheDocument()
   })
 
-  it('calls signInWithGoogle on sign in click', () => {
-    setupAuth(null)
-    render(<Header />)
-    fireEvent.click(screen.getByText('Sign In'))
-    expect(mockSignInWithGoogle).toHaveBeenCalled()
-  })
+  it("opens sign in modal when sign in button is clicked", async () => {
+    render(<Header />);
+    const signInButton = screen.getByRole("button", { name: "Sign In" });
+    fireEvent.click(signInButton);
+    
+    // Expect Modal Title
+    expect(screen.getByRole("heading", { name: "Sign In" })).toBeInTheDocument();
+  });
 
   it('renders user avatar and new thread button when authenticated', () => {
     setupAuth({ email: 'test@example.com', displayName: 'Test User' })
