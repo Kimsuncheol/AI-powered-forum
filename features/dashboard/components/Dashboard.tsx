@@ -2,9 +2,20 @@
 
 import { Typography, Box, Paper } from "@mui/material";
 import { useAuth } from "@/context/AuthContext";
+import ThreadFeed from "./ThreadFeed";
+import { useThreadFeed } from "../hooks/useThreadFeed";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { 
+    threads, 
+    loading, 
+    loadingMore, 
+    error, 
+    hasMore, 
+    loadMore, 
+    seedData 
+  } = useThreadFeed();
 
   return (
     <Box sx={{ maxWidth: 800, mx: "auto" }}>
@@ -29,22 +40,16 @@ export default function Dashboard() {
         </Typography>
       </Paper>
 
-      {/* Feed Content Placeholder */}
-      <Paper 
-        sx={{ 
-          p: 3, 
-          bgcolor: "background.paper",
-          borderRadius: 1,
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="body1" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
-          Thread feed coming soon...
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontSize: "0.75rem" }}>
-          This will display posts with Reddit-style voting and compact cards
-        </Typography>
-      </Paper>
+      {/* Thread Feed */}
+      <ThreadFeed 
+        threads={threads}
+        loading={loading}
+        loadingMore={loadingMore}
+        error={error}
+        hasMore={hasMore}
+        onLoadMore={loadMore}
+        onSeedData={seedData}
+      />
     </Box>
   );
 }

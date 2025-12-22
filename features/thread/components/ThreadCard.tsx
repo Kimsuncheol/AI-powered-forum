@@ -406,7 +406,8 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
                     px: 0.75,
                     py: 0.25,
                     fontSize: "0.75rem",
-                    fontWeight: 700,\n                  }}
+                    fontWeight: 700,
+                  }}
                   onClick={handleCommentClick}
                 >
                   {thread.commentsCount || 0}

@@ -17,6 +17,8 @@ export interface Thread {
   imageUrls?: string[];
   commentsCount?: number;
   isNSFW?: boolean;
+  likesCount?: number;
+  userVote?: 'up' | 'down' | null;
 }
 
 export interface ThreadCreateInput {

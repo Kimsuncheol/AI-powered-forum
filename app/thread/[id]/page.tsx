@@ -93,11 +93,11 @@ export default function ThreadDetailPage() {
       <Paper elevation={3} sx={{ p: 4, mb: 4, borderRadius: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1.5 }}>
           <Avatar sx={{ bgcolor: "primary.main" }}>
-            {thread.authorName[0].toUpperCase()}
+            {(thread.authorName?.[0] || thread.authorId?.[0] || "?").toUpperCase()}
           </Avatar>
           <Box>
             <Typography variant="subtitle1" fontWeight="bold">
-              {thread.authorName}
+              {thread.authorName || thread.authorId || "Anonymous"}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {formatDistanceToNow(thread.createdAt)} ago
@@ -110,7 +110,7 @@ export default function ThreadDetailPage() {
         </Typography>
 
         <Box sx={{ mb: 3 }}>
-          {thread.tags.map((tag) => (
+          {(thread.tags || []).map((tag) => (
             <Chip
               key={tag}
               label={`#${tag}`}

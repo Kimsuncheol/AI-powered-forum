@@ -60,7 +60,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     <ThemeContext.Provider value={{ mode, toggleMode }}>
       <MUIThemeProvider theme={theme}>
         <CssBaseline />
-        {mounted ? children : <div style={{ visibility: 'hidden' }}>{children}</div>}
+        {children}
       </MUIThemeProvider>
     </ThemeContext.Provider>
   );

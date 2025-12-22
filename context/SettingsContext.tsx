@@ -115,23 +115,67 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   // Load from localStorage after mount
   useEffect(() => {
-    setAutoPlayEnabled(getStoredValue(STORAGE_KEYS.autoPlay, false));
-    setEmailNotifications(getStoredValue(STORAGE_KEYS.emailNotifications, true));
-    setPushNotifications(getStoredValue(STORAGE_KEYS.pushNotifications, false));
-    setProfileVisibilityState(getStoredValue(STORAGE_KEYS.profileVisibility, 'public'));
-    setShowOnlineStatus(getStoredValue(STORAGE_KEYS.showOnlineStatus, true));
-    setDefaultFeedState(getStoredValue(STORAGE_KEYS.defaultFeed, 'global'));
-    setNsfwFilterEnabled(getStoredValue(STORAGE_KEYS.nsfwFilter, true));
-    setCompactView(getStoredValue(STORAGE_KEYS.compactView, false));
-    setCommentsSortOrderState(getStoredValue(STORAGE_KEYS.commentsSortOrder, 'newest'));
-    setAiAssistanceEnabled(getStoredValue(STORAGE_KEYS.aiAssistance, true));
-    setDefaultAiModelState(getStoredValue(STORAGE_KEYS.defaultAiModel, 'image'));
-    setSearchAutoSave(getStoredValue(STORAGE_KEYS.searchAutoSave, true));
-    setMaxRecentSearchesState(getStoredValue(STORAGE_KEYS.maxRecentSearches, 10));
-    setLanguageState(getStoredValue(STORAGE_KEYS.language, 'en'));
-    setTimezoneState(getStoredValue(STORAGE_KEYS.timezone, 'UTC'));
-    setDateFormatState(getStoredValue(STORAGE_KEYS.dateFormat, 'MM/DD/YYYY'));
-    setReduceAnimations(getStoredValue(STORAGE_KEYS.reduceAnimations, false));
+    const loadSettings = () => {
+      setAutoPlayEnabled(getStoredValue(STORAGE_KEYS.autoPlay, false));
+      setEmailNotifications(getStoredValue(STORAGE_KEYS.emailNotifications, true));
+      setPushNotifications(getStoredValue(STORAGE_KEYS.pushNotifications, false));
+      setProfileVisibilityState(getStoredValue(STORAGE_KEYS.profileVisibility, 'public'));
+      setShowOnlineStatus(getStoredValue(STORAGE_KEYS.showOnlineStatus, true));
+      setDefaultFeedState(getStoredValue(STORAGE_KEYS.defaultFeed, 'global'));
+      setNsfwFilterEnabled(getStoredValue(STORAGE_KEYS.nsfwFilter, true));
+      setCompactView(getStoredValue(STORAGE_KEYS.compactView, false));
+      setCommentsSortOrderState(getStoredValue(STORAGE_KEYS.commentsSortOrder, 'newest'));
+      setAiAssistanceEnabled(getStoredValue(STORAGE_KEYS.aiAssistance, true));
+      setDefaultAiModelState(getStoredValue(STORAGE_KEYS.defaultAiModel, 'image'));
+      setSearchAutoSave(getStoredValue(STORAGE_KEYS.searchAutoSave, true));
+      setMaxRecentSearchesState(getStoredValue(STORAGE_KEYS.maxRecentSearches, 10));
+      setLanguageState(getStoredValue(STORAGE_KEYS.language, 'en'));
+      setTimezoneState(getStoredValue(STORAGE_KEYS.timezone, 'UTC'));
+      setDateFormatState(getStoredValue(STORAGE_KEYS.dateFormat, 'MM/DD/YYYY'));
+      setReduceAnimations(getStoredValue(STORAGE_KEYS.reduceAnimations, false));
+    };
+
+    loadSettings();
+
+    // Listen for storage changes in other tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (!e.key) return;
+      
+      const updateValue = (setter: (val: any) => void, defaultValue: any) => {
+        if (e.newValue !== null) {
+          try {
+            setter(JSON.parse(e.newValue));
+          } catch {
+            setter(defaultValue);
+          }
+        } else {
+          setter(defaultValue);
+        }
+      };
+
+      switch (e.key) {
+        case STORAGE_KEYS.autoPlay: updateValue(setAutoPlayEnabled, false); break;
+        case STORAGE_KEYS.emailNotifications: updateValue(setEmailNotifications, true); break;
+        case STORAGE_KEYS.pushNotifications: updateValue(setPushNotifications, false); break;
+        case STORAGE_KEYS.profileVisibility: updateValue(setProfileVisibilityState, 'public'); break;
+        case STORAGE_KEYS.showOnlineStatus: updateValue(setShowOnlineStatus, true); break;
+        case STORAGE_KEYS.defaultFeed: updateValue(setDefaultFeedState, 'global'); break;
+        case STORAGE_KEYS.nsfwFilter: updateValue(setNsfwFilterEnabled, true); break;
+        case STORAGE_KEYS.compactView: updateValue(setCompactView, false); break;
+        case STORAGE_KEYS.commentsSortOrder: updateValue(setCommentsSortOrderState, 'newest'); break;
+        case STORAGE_KEYS.aiAssistance: updateValue(setAiAssistanceEnabled, true); break;
+        case STORAGE_KEYS.defaultAiModel: updateValue(setDefaultAiModelState, 'image'); break;
+        case STORAGE_KEYS.searchAutoSave: updateValue(setSearchAutoSave, true); break;
+        case STORAGE_KEYS.maxRecentSearches: updateValue(setMaxRecentSearchesState, 10); break;
+        case STORAGE_KEYS.language: updateValue(setLanguageState, 'en'); break;
+        case STORAGE_KEYS.timezone: updateValue(setTimezoneState, 'UTC'); break;
+        case STORAGE_KEYS.dateFormat: updateValue(setDateFormatState, 'MM/DD/YYYY'); break;
+        case STORAGE_KEYS.reduceAnimations: updateValue(setReduceAnimations, false); break;
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   // Toggle functions

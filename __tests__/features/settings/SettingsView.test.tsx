@@ -94,7 +94,7 @@ describe("SettingsView", () => {
     render(<SettingsView />);
     
     // Find the specific auto-play switch by its label text
-    const autoPlaySection = screen.getByText("Auto-play Media").closest('.MuiBox-root');
+    const autoPlaySection = screen.getByText("Auto-play Media").closest('.MuiPaper-root');
     const switchElement = within(autoPlaySection!).getByRole("switch");
     fireEvent.click(switchElement);
     

@@ -97,18 +97,115 @@ export function MarkdownEditor({
             sx={{
               p: 2,
               minHeight: minHeight,
-              "& img": { maxWidth: "100%" },
+              "& h1": {
+                fontSize: "2rem",
+                fontWeight: 700,
+                mt: 2,
+                mb: 1,
+                borderBottom: `1px solid ${theme.palette.divider}`,
+                pb: 0.5,
+              },
+              "& h2": {
+                fontSize: "1.5rem",
+                fontWeight: 600,
+                mt: 2,
+                mb: 1,
+              },
+              "& h3": {
+                fontSize: "1.25rem",
+                fontWeight: 600,
+                mt: 1.5,
+                mb: 0.5,
+              },
+              "& h4": {
+                fontSize: "1.1rem",
+                fontWeight: 600,
+                mt: 1.5,
+                mb: 0.5,
+              },
+              "& h5": {
+                fontSize: "1rem",
+                fontWeight: 600,
+                mt: 1,
+                mb: 0.5,
+              },
+              "& h6": {
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                mt: 1,
+                mb: 0.5,
+              },
+              "& p": {
+                my: 1,
+                lineHeight: 1.6,
+              },
+              "& ul, & ol": {
+                pl: 3,
+                my: 1,
+              },
+              "& li": {
+                my: 0.5,
+              },
+              "& code": {
+                bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                px: 0.5,
+                py: 0.25,
+                borderRadius: 0.5,
+                fontSize: "0.9em",
+                fontFamily: "monospace",
+              },
               "& pre": {
-                bgcolor: "background.paper",
-                p: 1,
+                bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                p: 1.5,
                 borderRadius: 1,
                 overflow: "auto",
+                my: 1,
+                "& code": {
+                  bgcolor: "transparent",
+                  px: 0,
+                  py: 0,
+                },
+              },
+              "& a": {
+                color: theme.palette.primary.main,
+                textDecoration: "none",
+                "&:hover": {
+                  textDecoration: "underline",
+                },
+              },
+              "& img": { 
+                maxWidth: "100%",
+                borderRadius: 1,
+                my: 1,
               },
               "& blockquote": {
                 borderLeft: `4px solid ${theme.palette.divider}`,
                 m: 0,
+                my: 1,
                 pl: 2,
+                py: 0.5,
                 color: "text.secondary",
+                fontStyle: "italic",
+              },
+              "& table": {
+                width: "100%",
+                borderCollapse: "collapse",
+                my: 1,
+              },
+              "& th, & td": {
+                border: `1px solid ${theme.palette.divider}`,
+                px: 1,
+                py: 0.5,
+                textAlign: "left",
+              },
+              "& th": {
+                bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                fontWeight: 600,
+              },
+              "& hr": {
+                border: "none",
+                borderTop: `1px solid ${theme.palette.divider}`,
+                my: 2,
               },
             }}
           >
