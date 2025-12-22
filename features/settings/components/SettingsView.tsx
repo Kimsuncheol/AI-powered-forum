@@ -71,24 +71,6 @@ export default function SettingsView() {
             <Typography>Theme</Typography>
             <ThemeToggle />
           </Box>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={settings.compactView}
-                onChange={settings.toggleCompactView}
-              />
-            }
-            label="Compact View"
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={settings.reduceAnimations}
-                onChange={settings.toggleReduceAnimations}
-              />
-            }
-            label="Reduce Animations"
-          />
         </Stack>
       </Paper>
 

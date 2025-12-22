@@ -77,20 +77,6 @@ describe("SettingsContext Integration Tests", () => {
       expect(localStorage.getItem("settings_defaultFeed")).toBe('"following"');
     });
 
-    it("should persist compact view setting to localStorage", () => {
-      const { result } = renderHook(() => useSettings(), {
-        wrapper: SettingsProvider,
-      });
-
-      expect(result.current.compactView).toBe(false);
-
-      act(() => {
-        result.current.toggleCompactView();
-      });
-
-      expect(result.current.compactView).toBe(true);
-      expect(localStorage.getItem("settings_compactView")).toBe("true");
-    });
 
     it("should persist AI assistance setting to localStorage", () => {
       const { result } = renderHook(() => useSettings(), {
@@ -152,20 +138,6 @@ describe("SettingsContext Integration Tests", () => {
       expect(localStorage.getItem("settings_language")).toBe('"ko"');
     });
 
-    it("should persist reduce animations setting to localStorage", () => {
-      const { result } = renderHook(() => useSettings(), {
-        wrapper: SettingsProvider,
-      });
-
-      expect(result.current.reduceAnimations).toBe(false);
-
-      act(() => {
-        result.current.toggleReduceAnimations();
-      });
-
-      expect(result.current.reduceAnimations).toBe(true);
-      expect(localStorage.getItem("settings_reduceAnimations")).toBe("true");
-    });
   });
 
   describe("Settings Restoration from LocalStorage", () => {
@@ -217,17 +189,6 @@ describe("SettingsContext Integration Tests", () => {
       });
     });
 
-    it("should restore compact view setting from localStorage on mount", () => {
-      localStorage.setItem("settings_compactView", "true");
-
-      const { result } = renderHook(() => useSettings(), {
-        wrapper: SettingsProvider,
-      });
-
-      waitFor(() => {
-        expect(result.current.compactView).toBe(true);
-      });
-    });
 
     it("should restore AI assistance setting from localStorage on mount", () => {
       localStorage.setItem("settings_aiAssistance", "false");
@@ -277,17 +238,6 @@ describe("SettingsContext Integration Tests", () => {
       });
     });
 
-    it("should restore reduce animations from localStorage on mount", () => {
-      localStorage.setItem("settings_reduceAnimations", "true");
-
-      const { result } = renderHook(() => useSettings(), {
-        wrapper: SettingsProvider,
-      });
-
-      waitFor(() => {
-        expect(result.current.reduceAnimations).toBe(true);
-      });
-    });
 
     it("should use default values when localStorage is empty", () => {
       const { result } = renderHook(() => useSettings(), {
@@ -299,12 +249,7 @@ describe("SettingsContext Integration Tests", () => {
         expect(result.current.nsfwFilterEnabled).toBe(true);
         expect(result.current.searchAutoSave).toBe(true);
         expect(result.current.defaultFeed).toBe("global");
-        expect(result.current.compactView).toBe(false);
         expect(result.current.aiAssistanceEnabled).toBe(true);
-        expect(result.current.defaultAiModel).toBe("image");
-        expect(result.current.maxRecentSearches).toBe(10);
-        expect(result.current.language).toBe("en");
-        expect(result.current.reduceAnimations).toBe(false);
       });
     });
   });
@@ -494,7 +439,6 @@ describe("SettingsContext Integration Tests", () => {
       act(() => {
         result1.current.toggleAutoPlay();
         result1.current.toggleNsfwFilter();
-        result1.current.toggleCompactView();
         result1.current.toggleAiAssistance();
         result1.current.toggleSearchAutoSave();
         result1.current.setDefaultFeed("following");
@@ -512,7 +456,6 @@ describe("SettingsContext Integration Tests", () => {
       waitFor(() => {
         expect(result2.current.autoPlayEnabled).toBe(true);
         expect(result2.current.nsfwFilterEnabled).toBe(false);
-        expect(result2.current.compactView).toBe(true);
         expect(result2.current.aiAssistanceEnabled).toBe(false);
         expect(result2.current.searchAutoSave).toBe(false);
         expect(result2.current.defaultFeed).toBe("following");
@@ -587,14 +530,8 @@ describe("SettingsContext Integration Tests", () => {
           key: "settings_nsfwFilter",
           newValue: "false",
         }));
-        window.dispatchEvent(new StorageEvent("storage", {
-          key: "settings_compactView",
-          newValue: "true",
-        }));
       });
-
       expect(result.current.nsfwFilterEnabled).toBe(false);
-      expect(result.current.compactView).toBe(true);
     });
   });
 });

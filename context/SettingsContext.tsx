@@ -21,11 +21,9 @@ interface SettingsContextType {
   // Content Preferences
   defaultFeed: 'global' | 'following';
   nsfwFilterEnabled: boolean;
-  compactView: boolean;
   commentsSortOrder: 'newest' | 'oldest';
   setDefaultFeed: (feed: 'global' | 'following') => void;
   toggleNsfwFilter: () => void;
-  toggleCompactView: () => void;
   setCommentsSortOrder: (sort: 'newest' | 'oldest') => void;
   
   // AI Features
@@ -48,11 +46,7 @@ interface SettingsContextType {
   setLanguage: (lang: string) => void;
   setTimezone: (tz: string) => void;
   setDateFormat: (format: 'MM/DD/YYYY' | 'DD/MM/YYYY') => void;
-  
-  // Accessibility
-  reduceAnimations: boolean;
-  toggleReduceAnimations: () => void;
-}
+  }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
@@ -64,7 +58,6 @@ const STORAGE_KEYS = {
   showOnlineStatus: "settings_showOnlineStatus",
   defaultFeed: "settings_defaultFeed",
   nsfwFilter: "settings_nsfwFilter",
-  compactView: "settings_compactView",
   commentsSortOrder: "settings_commentsSortOrder",
   aiAssistance: "settings_aiAssistance",
   defaultAiModel: "settings_defaultAiModel",
@@ -73,7 +66,6 @@ const STORAGE_KEYS = {
   language: "settings_language",
   timezone: "settings_timezone",
   dateFormat: "settings_dateFormat",
-  reduceAnimations: "settings_reduceAnimations",
 } as const;
 
 // Helper to safely get from localStorage with SSR support
@@ -102,7 +94,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [showOnlineStatus, setShowOnlineStatus] = useState(true);
   const [defaultFeed, setDefaultFeedState] = useState<'global' | 'following'>('global');
   const [nsfwFilterEnabled, setNsfwFilterEnabled] = useState(true);
-  const [compactView, setCompactView] = useState(false);
   const [commentsSortOrder, setCommentsSortOrderState] = useState<'newest' | 'oldest'>('newest');
   const [aiAssistanceEnabled, setAiAssistanceEnabled] = useState(true);
   const [defaultAiModel, setDefaultAiModelState] = useState<AiFeatureType>('image');
@@ -111,7 +102,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState('en');
   const [timezone, setTimezoneState] = useState('UTC');
   const [dateFormat, setDateFormatState] = useState<'MM/DD/YYYY' | 'DD/MM/YYYY'>('MM/DD/YYYY');
-  const [reduceAnimations, setReduceAnimations] = useState(false);
 
   // Load from localStorage after mount
   useEffect(() => {
@@ -123,7 +113,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setShowOnlineStatus(getStoredValue(STORAGE_KEYS.showOnlineStatus, true));
       setDefaultFeedState(getStoredValue(STORAGE_KEYS.defaultFeed, 'global'));
       setNsfwFilterEnabled(getStoredValue(STORAGE_KEYS.nsfwFilter, true));
-      setCompactView(getStoredValue(STORAGE_KEYS.compactView, false));
       setCommentsSortOrderState(getStoredValue(STORAGE_KEYS.commentsSortOrder, 'newest'));
       setAiAssistanceEnabled(getStoredValue(STORAGE_KEYS.aiAssistance, true));
       setDefaultAiModelState(getStoredValue(STORAGE_KEYS.defaultAiModel, 'image'));
@@ -132,7 +121,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setLanguageState(getStoredValue(STORAGE_KEYS.language, 'en'));
       setTimezoneState(getStoredValue(STORAGE_KEYS.timezone, 'UTC'));
       setDateFormatState(getStoredValue(STORAGE_KEYS.dateFormat, 'MM/DD/YYYY'));
-      setReduceAnimations(getStoredValue(STORAGE_KEYS.reduceAnimations, false));
     };
 
     loadSettings();
@@ -161,7 +149,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         case STORAGE_KEYS.showOnlineStatus: updateValue(setShowOnlineStatus, true); break;
         case STORAGE_KEYS.defaultFeed: updateValue(setDefaultFeedState, 'global'); break;
         case STORAGE_KEYS.nsfwFilter: updateValue(setNsfwFilterEnabled, true); break;
-        case STORAGE_KEYS.compactView: updateValue(setCompactView, false); break;
         case STORAGE_KEYS.commentsSortOrder: updateValue(setCommentsSortOrderState, 'newest'); break;
         case STORAGE_KEYS.aiAssistance: updateValue(setAiAssistanceEnabled, true); break;
         case STORAGE_KEYS.defaultAiModel: updateValue(setDefaultAiModelState, 'image'); break;
@@ -170,7 +157,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         case STORAGE_KEYS.language: updateValue(setLanguageState, 'en'); break;
         case STORAGE_KEYS.timezone: updateValue(setTimezoneState, 'UTC'); break;
         case STORAGE_KEYS.dateFormat: updateValue(setDateFormatState, 'MM/DD/YYYY'); break;
-        case STORAGE_KEYS.reduceAnimations: updateValue(setReduceAnimations, false); break;
       }
     };
 
@@ -225,14 +211,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setNsfwFilterEnabled(prev => {
       const newValue = !prev;
       setStoredValue(STORAGE_KEYS.nsfwFilter, newValue);
-      return newValue;
-    });
-  };
-
-  const toggleCompactView = () => {
-    setCompactView(prev => {
-      const newValue = !prev;
-      setStoredValue(STORAGE_KEYS.compactView, newValue);
       return newValue;
     });
   };
@@ -293,14 +271,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setStoredValue(STORAGE_KEYS.dateFormat, format);
   };
 
-  const toggleReduceAnimations = () => {
-    setReduceAnimations(prev => {
-      const newValue = !prev;
-      setStoredValue(STORAGE_KEYS.reduceAnimations, newValue);
-      return newValue;
-    });
-  };
-
   const value: SettingsContextType = {
     autoPlayEnabled,
     toggleAutoPlay,
@@ -314,11 +284,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     toggleOnlineStatus,
     defaultFeed,
     nsfwFilterEnabled,
-    compactView,
     commentsSortOrder,
     setDefaultFeed,
     toggleNsfwFilter,
-    toggleCompactView,
     setCommentsSortOrder,
     aiAssistanceEnabled,
     defaultAiModel,
@@ -335,8 +303,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setLanguage,
     setTimezone,
     setDateFormat,
-    reduceAnimations,
-    toggleReduceAnimations,
   };
 
   return (

@@ -259,7 +259,6 @@ describe("Settings Component Behavior Integration Tests", () => {
     it("should apply both NSFW filter and other settings correctly", () => {
       localStorage.setItem("settings_nsfwFilter", "true");
       localStorage.setItem("settings_autoPlay", "false");
-      localStorage.setItem("settings_compactView", "true");
 
       render(
         <AuthProvider>
