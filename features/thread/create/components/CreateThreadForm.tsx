@@ -16,8 +16,10 @@ import {
   Typography,
   ToggleButton,
   ToggleButtonGroup,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
-import { TextFields, Code, Link as LinkIcon, VideoLibrary, Audiotrack } from "@mui/icons-material";
+import { TextFields, Code, Link as LinkIcon, VideoLibrary, Audiotrack, Warning } from "@mui/icons-material";
 import { ThreadCreateInput } from "../../types";
 import { useRouter } from "next/navigation";
 import { CATEGORIES } from "@/features/meta/categories";
@@ -48,6 +50,7 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
   const [categoryId, setCategoryId] = useState("");
   const [tagIds, setTagIds] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
+  const [isNSFW, setIsNSFW] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [musicModalOpen, setMusicModalOpen] = useState(false);
@@ -91,6 +94,7 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
         linkUrl: mode === 'link' ? linkUrl : undefined,
         mediaUrl: (mode === 'video' || mode === 'audio') ? mediaUrl : undefined,
         imageUrls: images.length > 0 ? images : undefined,
+        isNSFW,
       });
     } catch {
       // Error handled by parent
@@ -303,6 +307,29 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
                 </Box>
               )}
             </Box>
+
+            {/* NSFW Checkbox */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isNSFW}
+                  onChange={(e) => setIsNSFW(e.target.checked)}
+                  disabled={loading}
+                  icon={<Warning />}
+                  checkedIcon={<Warning />}
+                />
+              }
+              label={
+                <Box>
+                  <Typography variant="body2" fontWeight="medium">
+                    Mark as NSFW (Not Safe For Work)
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Check this if your content contains sensitive material
+                  </Typography>
+                </Box>
+              }
+            />
 
             {/* Image Drop Zone - Available in All Modes */}
             <ImageDropZone

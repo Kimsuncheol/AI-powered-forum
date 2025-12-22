@@ -16,6 +16,7 @@ export interface Thread {
   mediaUrl?: string;
   imageUrls?: string[];
   commentsCount?: number;
+  isNSFW?: boolean;
 }
 
 export interface ThreadCreateInput {
@@ -27,6 +28,7 @@ export interface ThreadCreateInput {
   linkUrl?: string;
   mediaUrl?: string;
   imageUrls?: string[];
+  isNSFW?: boolean;
 }
 
 export interface Comment {

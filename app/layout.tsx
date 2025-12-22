@@ -25,6 +25,7 @@ import { Container } from "@mui/material";
 // react-toastify
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 
 export default function RootLayout({
   children,
@@ -38,8 +39,10 @@ export default function RootLayout({
           <SettingsProvider>
             <ToastContainer position="top-right" autoClose={3000} />
             <ThemeProvider>
-              <Header />
-              <Container maxWidth="lg">{children}</Container>
+              <AppRouterCacheProvider>
+                <Header />
+                <Container sx={{ width: "100%", py: 2 }}>{children}</Container>
+              </AppRouterCacheProvider>
             </ThemeProvider>
           </SettingsProvider>
         </AuthProvider>

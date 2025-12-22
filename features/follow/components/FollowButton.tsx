@@ -33,7 +33,8 @@ export function FollowButton({
 
   const loading = reqLoading || followLoading;
 
-  if (status === "following") {
+  // Check if actually following (status might be different types)
+  if (status && String(status).toUpperCase() === "FOLLOWING") {
     return (
       <Button
         variant="outlined"
@@ -59,7 +60,7 @@ export function FollowButton({
     );
   }
 
-  if (status === "pending") {
+  if (status && String(status).toUpperCase() === "PENDING") {
     return (
       <Button
         variant="outlined"

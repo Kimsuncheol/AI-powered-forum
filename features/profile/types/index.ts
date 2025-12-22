@@ -9,6 +9,23 @@ export interface UserProfile {
   role: "user" | "admin";
   createdAt: number; // Milliseconds
   bio?: string;
+  
+  // Notification preferences
+  emailNotifications?: boolean;
+  pushNotifications?: boolean;
+  notificationToken?: string; // FCM token
+  
+  // Privacy settings
+  profileVisibility?: 'public' | 'private';
+  showOnlineStatus?: boolean;
+  
+  // AI quota tracking
+  aiQuotaId?: string; // Reference to user's quota document
+  
+  // Localization
+  language?: string;
+  timezone?: string;
+  dateFormat?: 'MM/DD/YYYY' | 'DD/MM/YYYY';
 }
 
 export interface UserActivityStats {

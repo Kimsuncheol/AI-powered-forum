@@ -39,7 +39,7 @@ export default function Header() {
   }, []);
 
   if (!mounted) {
-    return <Box sx={{ height: 64, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }} />;
+    return <div style={{ height: 64, backgroundColor: 'var(--background-paper)', borderBottom: '1px solid var(--divider)' }} />;
   }
 
   if (pathname === "/signin" || pathname === "/signup") {
@@ -60,79 +60,115 @@ export default function Header() {
   };
 
   return (
-    <AppBar position="sticky" color="default" elevation={1}>
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          {/* Logo / Title */}
-          <Typography
-            variant="h6"
+    <AppBar position="sticky" sx={{ bgcolor: "background.paper" }}>
+      <Container sx={{ maxWidth: "xl" }}>
+        <Toolbar disableGutters sx={{ minHeight: 48, height: 48, display: "flex", justifyContent: "space-between" }}>
+          {/* First Box: Logo */}
+          <Box
             component={Link}
             href="/"
             sx={{
-              mr: 2,
-              flexGrow: 1,
-              textDecoration: "none",
-              color: "inherit",
-              fontWeight: 700,
-            }}
-          >
-            AI Forum
-          </Typography>
-
-          {/* Search Bar */}
-          <Box
-            sx={{
               display: "flex",
               alignItems: "center",
-              bgcolor: "action.hover",
-              px: 2,
-              py: 0.75,
-              borderRadius: 2,
+              gap: 0.5,
+              textDecoration: "none",
+              color: "primary.main",
+            }}
+          >
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                bgcolor: "primary.main",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 700,
+                fontSize: "1.125rem",
+                color: "white",
+              }}
+            >
+              F
+            </Box>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                fontSize: "1.25rem",
+                display: { xs: "none", sm: "block" },
+              }}
+            >
+              Forum
+            </Typography>
+          </Box>
+
+          {/* Second Box: Search, Inbox, Create, Avatar */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flex: 1, ml: 4, justifyContent: "flex-end" }}>
+            {/* Search Bar */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                bgcolor: "action.hover",
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
               cursor: "pointer",
-              width: { xs: "auto", sm: 300 },
-              mx: 2,
-              transition: "background-color 0.2s",
+              width: { xs: "auto", sm: 240 },
+              flexGrow: 1,
+              maxWidth: 600,
+              border: "1px solid",
+              borderColor: "divider",
+              transition: "border-color 0.2s, background-color 0.2s",
               "&:hover": {
-                bgcolor: "action.selected",
+                borderColor: "primary.main",
+                bgcolor: "background.paper",
               },
             }}
             onClick={() => setSearchOpen(true)}
           >
-            <SearchIcon sx={{ color: "text.secondary", mr: 1 }} />
-            <Typography variant="body2" color="text.secondary">
-              Search...
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {/* Theme Toggle moved to Settings page */}
+            <SearchIcon sx={{ color: "text.secondary", mr: 1, fontSize: 20 }} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
+                Search
+              </Typography>
+            </Box>
 
             {/* Auth Controls */}
             {loading ? (
-              <Skeleton variant="circular" width={40} height={40} />
+              <Skeleton variant="circular" width={32} height={32} />
             ) : user ? (
               <>
                 <IconButton
                   component={Link}
                   href="/inbox"
-                  sx={{ mr: 2, p: 0 }}
+                  size="small"
+                  sx={{ p: 0.75 }}
                 >
-                  <InboxRoundedIcon />
+                  <InboxRoundedIcon sx={{ fontSize: 20 }} />
                 </IconButton>
                 <Button
                   component={Link}
                   href="/threads/new"
-                  variant="contained"
+                  variant="outlined"
                   color="primary"
-                  startIcon={<AddCircleOutlineOutlined />}
-                  sx={{ mr: 2, textTransform: "none", borderRadius: 2 }}
+                  startIcon={<AddCircleOutlineOutlined sx={{ fontSize: 18 }} />}
+                  sx={{ 
+                    textTransform: "none", 
+                    borderRadius: 20,
+                    fontSize: "0.875rem",
+                    px: 2,
+                    py: 0.5,
+                    fontWeight: 700,
+                  }}
                 >
-                  New Thread
+                  Create
                 </Button>
-                <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
+                <IconButton onClick={handleMenuOpen} sx={{ p: 0, ml: 1 }}>
                   <Avatar
                     alt={user.displayName || "User"}
                     src={user.photoURL || undefined}
+                    sx={{ width: 32, height: 32, fontSize: "0.875rem" }}
                   >
                     {user.email?.charAt(0).toUpperCase()}
                   </Avatar>
@@ -175,9 +211,16 @@ export default function Header() {
                 color="primary"
                 variant="contained"
                 onClick={() => setSignInOpen(true)}
-                sx={{ textTransform: "none" }}
+                sx={{ 
+                  textTransform: "none",
+                  borderRadius: 20,
+                  px: 3,
+                  py: 0.5,
+                  fontSize: "0.875rem",
+                  fontWeight: 700,
+                }}
               >
-                Sign In
+                Log In
               </Button>
             )}
           </Box>

@@ -14,23 +14,23 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<Mode>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("themeMode") as Mode) || "system";
-    }
-    return "system";
-  });
-
-  const [systemIsDark, setSystemIsDark] = useState(() => {
-    if (typeof window !== "undefined") {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
-    }
-    return false;
-  });
+  const [mode, setMode] = useState<Mode>("light");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const savedMode = localStorage.getItem("themeMode") as Mode;
+    if (savedMode) {
+      setMode(savedMode);
+    }
+    setMounted(true);
+  }, []);
+
+  const [systemIsDark, setSystemIsDark] = useState(false);
+
+  useEffect(() => {
+    setSystemIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
     
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
       setSystemIsDark(e.matches);
     };
@@ -60,7 +60,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     <ThemeContext.Provider value={{ mode, toggleMode }}>
       <MUIThemeProvider theme={theme}>
         <CssBaseline />
-        {children}
+        {mounted ? children : <div style={{ visibility: 'hidden' }}>{children}</div>}
       </MUIThemeProvider>
     </ThemeContext.Provider>
   );
