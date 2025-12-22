@@ -15,6 +15,7 @@ export interface Thread {
   linkUrl?: string;
   mediaUrl?: string;
   imageUrls?: string[];
+  location?: LocationData;
   commentsCount?: number;
   isNSFW?: boolean;
   likesCount?: number;
@@ -31,6 +32,15 @@ export interface ThreadCreateInput {
   mediaUrl?: string;
   imageUrls?: string[];
   isNSFW?: boolean;
+  location?: LocationData;
+}
+
+export interface LocationData {
+  address: string;
+  lat: number;
+  lng: number;
+  name?: string;
+  placeId?: string;
 }
 
 export interface Comment {

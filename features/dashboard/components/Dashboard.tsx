@@ -2,20 +2,26 @@
 
 import { Typography, Box, Paper } from "@mui/material";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 import ThreadFeed from "./ThreadFeed";
-import { useThreadFeed } from "../hooks/useThreadFeed";
+import { useInfiniteThreadFeed } from "@/features/thread/hooks/useInfiniteThreadFeed";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { 
     threads, 
-    loading, 
+    loadingInitial, 
     loadingMore, 
     error, 
     hasMore, 
-    loadMore, 
-    seedData 
-  } = useThreadFeed();
+    loadInitial,
+    loadMore,
+  } = useInfiniteThreadFeed();
+
+  // Load initial threads on mount
+  useEffect(() => {
+    loadInitial();
+  }, [loadInitial]);
 
   return (
     <Box sx={{ maxWidth: 800, mx: "auto" }}>
@@ -43,12 +49,11 @@ export default function Dashboard() {
       {/* Thread Feed */}
       <ThreadFeed 
         threads={threads}
-        loading={loading}
+        loading={loadingInitial}
         loadingMore={loadingMore}
         error={error}
         hasMore={hasMore}
         onLoadMore={loadMore}
-        onSeedData={seedData}
       />
     </Box>
   );

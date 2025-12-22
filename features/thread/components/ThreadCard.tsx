@@ -14,7 +14,7 @@ import {
   IconButton,
   Button,
 } from "@mui/material";
-import { Favorite, Comment, Warning, Visibility } from "@mui/icons-material";
+import { Favorite, Comment, Warning, Visibility, Place } from "@mui/icons-material";
 import { Thread } from "../types";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
@@ -131,6 +131,15 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
                     color="error"
                     sx={{ height: 16, fontSize: "0.65rem", fontWeight: "bold", "& .MuiChip-label": { px: 0.5 } }}
                   />
+                )}
+                {thread.location && (
+                   <Chip
+                     icon={<Place sx={{ fontSize: 12 }} />}
+                     label={thread.location.name || thread.location.address.split(',')[0]}
+                     size="small"
+                     variant="outlined"
+                     sx={{ height: 16, fontSize: "0.65rem", "& .MuiChip-label": { px: 0.5 }, maxWidth: 120 }}
+                   />
                 )}
               </Box>
 

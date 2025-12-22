@@ -19,8 +19,8 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { TextFields, Code, Link as LinkIcon, VideoLibrary, Audiotrack, Warning } from "@mui/icons-material";
-import { ThreadCreateInput } from "../../types";
+import { TextFields, Code, Link as LinkIcon, VideoLibrary, Audiotrack, Warning, Place } from "@mui/icons-material";
+import { ThreadCreateInput, LocationData } from "../../types";
 import { useRouter } from "next/navigation";
 import { CATEGORIES } from "@/features/meta/categories";
 import { ProgressiveTagInput } from "@/components/inputs/ProgressiveTagInput";
@@ -33,6 +33,7 @@ import { AutoAwesome } from "@mui/icons-material";
 import ReactPlayer from "react-player";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
+import LocationPicker from "@/features/location/components/LocationPicker";
 
 interface CreateThreadFormProps {
   onSubmit: (data: ThreadCreateInput) => Promise<void>;
@@ -54,6 +55,8 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [musicModalOpen, setMusicModalOpen] = useState(false);
+  const [location, setLocation] = useState<LocationData | undefined>();
+  const [locationOpen, setLocationOpen] = useState(false);
   
   const [touched, setTouched] = useState({ title: false, body: false, category: false, linkUrl: false, mediaUrl: false });
 
@@ -92,9 +95,11 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
         tagIds: sanitizedTags,
         type: mode,
         linkUrl: mode === 'link' ? linkUrl : undefined,
+        linkUrl: mode === 'link' ? linkUrl : undefined,
         mediaUrl: (mode === 'video' || mode === 'audio') ? mediaUrl : undefined,
         imageUrls: images.length > 0 ? images : undefined,
         isNSFW,
+        location,
       });
     } catch {
       // Error handled by parent
@@ -366,6 +371,34 @@ export function CreateThreadForm({ onSubmit, loading, error }: CreateThreadFormP
               onClose={() => setMusicModalOpen(false)}
               onMusicSelect={setMediaUrl}
             />
+
+            {/* Location Picker */}
+            <Box>
+              <Button
+                startIcon={<Place />}
+                onClick={() => setLocationOpen(!locationOpen)}
+                variant={location ? "contained" : "outlined"}
+                color={location ? "primary" : "inherit"}
+                size="small"
+                sx={{ mb: 1 }}
+              >
+                {location ? "Location Attached" : "Add Location"}
+              </Button>
+              
+              {locationOpen && (
+                <Box sx={{ mt: 1, p: 2, border: 1, borderColor: "divider", borderRadius: 1 }}>
+                  <LocationPicker
+                    value={location}
+                    onChange={setLocation}
+                  />
+                  {location && (
+                    <Typography variant="caption" sx={{ display: 'block', mt: 1, color: 'text.secondary' }}>
+                      Selected: {location.address}
+                    </Typography>
+                  )}
+                </Box>
+              )}
+            </Box>
           </Stack>
         </CardContent>
         <CardActions sx={{ px: 2, pb: 2, justifyContent: "flex-end", gap: 1 }}>

@@ -14,6 +14,14 @@ import {
   getDoc,
 } from "firebase/firestore";
 
+export interface LocationData {
+  address: string;
+  lat: number;
+  lng: number;
+  name?: string;
+  placeId?: string;
+}
+
 export interface Thread {
   id: string;
   title: string;
@@ -24,6 +32,7 @@ export interface Thread {
   tags: string[];
   likes: number;
   commentsCount: number;
+  location?: LocationData;
 }
 
 export const THREADS_COLLECTION = "threads";

@@ -126,6 +126,31 @@ export default function ThreadDetailPage() {
 
         <Divider sx={{ mb: 3 }} />
 
+
+        {/* Location Map View */}
+        {thread.location && (
+          <Box sx={{ mb: 4, height: 300, borderRadius: 2, overflow: "hidden", border: 1, borderColor: "divider" }}>
+             {/* Map will be rendered here. Since we are in a read-only view, we can reuse LocationPicker or just GoogleMap directly.
+                 However, to avoid adding more imports to this file (GoogleMap, useLoadScript, etc.) and handling loading states, 
+                 we can use the same pattern as LocationPicker but in read-only mode, or create a `LocationView` component. 
+                 
+                 For simplicity and cleaner architecture, I should probably create a `LocationView` component,
+                 but for now I will use a simple static map approach or just reuse LocationPicker in read-only mode if it supported it.
+                 
+                 Let's create a LocationMapViewer component to handle the map loading and display.
+             */}
+             <iframe
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${thread.location.address}`}
+            ></iframe>
+          </Box>
+        )}
+
         {/* AI Summary Section */}
         {summary ? (
           <Paper

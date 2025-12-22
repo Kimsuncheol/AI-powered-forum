@@ -1,8 +1,9 @@
 import React from "react";
-import { Box, Typography, Button, CircularProgress, Stack, Alert } from "@mui/material";
-import { Add, Refresh } from "@mui/icons-material";
+import { Box, Typography, CircularProgress, Stack, Alert } from "@mui/material";
 import ThreadItem from "./ThreadItem";
 import { Thread } from "../api/thread.service";
+import InfiniteScrollSentinel from "@/components/InfiniteScrollSentinel";
+
 
 interface ThreadFeedProps {
   threads: Thread[];
@@ -11,7 +12,6 @@ interface ThreadFeedProps {
   error: string | null;
   hasMore: boolean;
   onLoadMore: () => void;
-  onSeedData: () => void;
 }
 
 export default function ThreadFeed({
@@ -21,7 +21,6 @@ export default function ThreadFeed({
   error,
   hasMore,
   onLoadMore,
-  onSeedData,
 }: ThreadFeedProps) {
   if (error) {
     return <Alert severity="error">{error}</Alert>;
@@ -48,9 +47,9 @@ export default function ThreadFeed({
         <Typography variant="h6" color="text.secondary" gutterBottom>
           No threads found yet.
         </Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={onSeedData}>
-          Seed Sample Data
-        </Button>
+        <Typography variant="body2" color="text.secondary">
+          Create your first thread to get started!
+        </Typography>
       </Box>
     );
   }
@@ -61,18 +60,11 @@ export default function ThreadFeed({
         <ThreadItem key={thread.id} thread={thread} />
       ))}
 
-      {hasMore && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-          <Button
-            variant="outlined"
-            onClick={onLoadMore}
-            disabled={loadingMore}
-            startIcon={loadingMore ? <CircularProgress size={20} /> : <Refresh />}
-          >
-            {loadingMore ? "Loading..." : "Load More"}
-          </Button>
-        </Box>
-      )}
+      <InfiniteScrollSentinel
+        onLoadMore={onLoadMore}
+        hasMore={hasMore}
+        loading={loadingMore}
+      />
     </Stack>
   );
 }

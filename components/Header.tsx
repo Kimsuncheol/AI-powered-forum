@@ -70,7 +70,7 @@ export default function Header() {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 0.5,
+              gap: 1,
               textDecoration: "none",
               color: "primary.main",
             }}
