@@ -5,7 +5,6 @@ import {
   Container,
   Paper,
   Button,
-  Divider,
   CircularProgress,
   Alert,
   Box,
@@ -74,9 +73,7 @@ export default function ThreadDetailPage() {
       <Paper elevation={3} sx={{ p: 4, mb: 4, borderRadius: 2 }}>
         <ThreadHeader thread={thread} />
 
-        <ThreadContent thread={thread} />
-
-        <Divider sx={{ mb: 3 }} />
+        <ThreadContent thread={thread} threadId={id} />
 
         <ThreadLocation location={thread.location} />
 

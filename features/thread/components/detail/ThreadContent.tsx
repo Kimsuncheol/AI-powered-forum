@@ -1,12 +1,13 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
-import { Link as LinkIcon, OpenInNew, VideoLibrary, Audiotrack } from "@mui/icons-material";
+import { Box, Typography, IconButton, Stack } from "@mui/material";
+import { Link as LinkIcon, OpenInNew, VideoLibrary, Audiotrack, Favorite } from "@mui/icons-material";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import dynamic from "next/dynamic";
 import "react-h5-audio-player/lib/styles.css";
 import { Thread } from "@/lib/db/threads";
+import { useLike } from "@/features/thread/hooks/useLike";
 
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as React.ComponentType<{
   url: string;
@@ -20,9 +21,11 @@ const AudioPlayer = dynamic(() => import("react-h5-audio-player").then(mod => mo
 
 interface ThreadContentProps {
   thread: Thread;
+  threadId: string;
 }
 
-export default function ThreadContent({ thread }: ThreadContentProps) {
+export default function ThreadContent({ thread, threadId }: ThreadContentProps) {
+  const { isLiked, likeCount, toggleLike } = useLike(threadId, thread.likesCount || 0);
   return (
     <>
       {thread.type === 'link' && thread.linkUrl ? (
@@ -103,6 +106,22 @@ export default function ThreadContent({ thread }: ThreadContentProps) {
            {thread.content}
          </Typography>
       )}
+
+      {/* Like/Actions Section */}
+      <Stack direction="row" spacing={1} sx={{ mb: 3 }} alignItems="center">
+        <IconButton
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleLike();
+          }}
+          sx={{ p: 1 }}
+        >
+          <Favorite sx={{ fontSize: 24 }} color={isLiked ? "error" : "disabled"} />
+        </IconButton>
+        <Typography variant="body1" fontWeight="bold">
+          {likeCount} {likeCount === 1 ? "like" : "likes"}
+        </Typography>
+      </Stack>
     </>
   );
 }

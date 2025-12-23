@@ -25,7 +25,6 @@ import remarkGfm from "remark-gfm";
 import { Link as LinkIcon, OpenInNew, VideoLibrary, Audiotrack } from "@mui/icons-material";
 import "react-h5-audio-player/lib/styles.css";
 import CommentSection from "./CommentSection";
-import VoteButtons from "./VoteButtons";
 
 // Dynamic imports for SSR safety
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as React.ComponentType<{
@@ -44,9 +43,11 @@ interface ThreadCardProps {
 }
 
 import { useSettings } from "@/context/SettingsContext";
+import { useLike } from "../hooks/useLike";
 
 function ThreadCard({ thread, onClick }: ThreadCardProps) {
   const { autoPlayEnabled, nsfwFilterEnabled } = useSettings();
+  const { isLiked, likeCount, toggleLike } = useLike(thread.id, thread.likesCount || 0);
   const [showComments, setShowComments] = React.useState(false);
   const [nsfwRevealed, setNsfwRevealed] = React.useState(false);
   
@@ -89,28 +90,7 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
       }}
       onClick={onClick}
     >
-      <Box sx={{ display: "flex" }}>
-        {/* Left: Vote Buttons */}
-        <Box
-          sx={{
-            bgcolor: "background.paper",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            pt: 2,
-            px: { xs: 0.5, sm: 1 },
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <VoteButtons
-            voteCount={thread.likesCount || 0}
-            compact
-          />
-        </Box>
-
-        {/* Right: Content */}
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <CardActionArea component={Link} href={`/thread/${thread.id}`}>
+      <CardActionArea component={Link} href={`/thread/${thread.id}`}>
             <CardContent sx={{ p: { xs: 1.5, sm: 2 }, pb: 1, "&:last-child": { pb: 1 } }}>
               {/* Header: Author & Date */}
               <Box sx={{ display: "flex", alignItems: "center", mb: 0.5, gap: 0.5, flexWrap: "wrap" }}>
@@ -389,14 +369,25 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
               </Box>
 
               {/* Actions */}
-              <Stack direction="row" spacing={0.5} color="text.secondary" alignItems="center">
+              <Stack direction="row" spacing={0.5} color="text.secondary" alignItems="center" sx={{ justifyContent: "flex-end" }}>
                 <IconButton 
                   size="small" 
-                  onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    e.preventDefault(); 
+                    toggleLike();
+                  }}
                   sx={{ p: 0.5 }}
                 >
-                  <Favorite fontSize="small" sx={{ fontSize: 16 }} color="disabled" />
+                  <Favorite 
+                    fontSize="small" 
+                    sx={{ fontSize: 16 }} 
+                    color={isLiked ? "error" : "disabled"} 
+                  />
                 </IconButton>
+                <Typography variant="caption" sx={{ fontSize: "0.7rem", fontWeight: 700 }}>
+                  {likeCount}
+                </Typography>
                 
                 <Button 
                   size="small" 
@@ -416,8 +407,7 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
               </Stack>
             </Box>
           </CardContent>
-        </Box>
-      </Box>
+
       
       {/* Comments Expansion */}
       <Collapse in={showComments} timeout="auto" unmountOnExit>
@@ -425,7 +415,6 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
           sx={{ 
             px: { xs: 1.5, sm: 2 },
             py: 2,
-            ml: { xs: 4, sm: 5 },
             bgcolor: "background.default", 
             borderTop: 1, 
             borderColor: "divider" 

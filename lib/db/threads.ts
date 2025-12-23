@@ -36,6 +36,9 @@ export interface Thread {
   type?: 'text' | 'markdown' | 'link' | 'video' | 'audio';
   linkUrl?: string;
   mediaUrl?: string;
+  imageUrls?: string[];
+  isNSFW?: boolean;
+  likesCount?: number;
 }
 
 export const THREADS_COLLECTION = "threads";
@@ -70,10 +73,13 @@ export async function getThreads(
       tags: data.tagIds || data.tags || [],
       likes: data.likes || 0,
       commentsCount: data.commentsCount || 0,
+      likesCount: data.likesCount || 0,
       location: data.location,
       type: data.type || 'text',
       linkUrl: data.linkUrl,
       mediaUrl: data.mediaUrl,
+      imageUrls: data.imageUrls,
+      isNSFW: data.isNSFW || false,
     } as Thread;
   });
 
@@ -100,10 +106,13 @@ export async function getThread(id: string): Promise<Thread | null> {
       tags: data.tagIds || data.tags || [],
       likes: data.likes || 0,
       commentsCount: data.commentsCount || 0,
+      likesCount: data.likesCount || 0,
       location: data.location,
       type: data.type || 'text',
       linkUrl: data.linkUrl,
       mediaUrl: data.mediaUrl,
+      imageUrls: data.imageUrls,
+      isNSFW: data.isNSFW || false,
     } as Thread;
   }
   return null;
