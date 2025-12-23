@@ -6,10 +6,8 @@ import {
   List,
   ListItem,
   Typography,
-  CircularProgress,
   Alert,
   Skeleton,
-  Button,
 } from "@mui/material";
 import { useInbox } from "../hooks/useInbox";
 import { InboxItemCard } from "./InboxItemCard";

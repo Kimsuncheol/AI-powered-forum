@@ -13,7 +13,7 @@ export function ThreadCreatePage() {
   const handleCreate = async (data: ThreadCreateInput) => {
     try {
       const threadId = await create(data);
-      router.push(`/threads/${threadId}`);
+      router.push(`/thread/${threadId}`);
     } catch (err) {
       console.error("Failed to create thread", err);
       toast.error("Failed to create thread", {

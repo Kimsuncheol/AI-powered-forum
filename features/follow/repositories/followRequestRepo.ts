@@ -192,8 +192,8 @@ export async function acceptFollowRequest(
   const followId = `${data.fromUid}_${toUid}`;
   const followRef = doc(db, FOLLOWS_COLLECTION, followId);
   batch.set(followRef, {
-    followerUid: data.fromUid,
-    followingUid: toUid,
+    followerId: data.fromUid,
+    followingId: toUid,
     createdAt: serverTimestamp(),
   });
 

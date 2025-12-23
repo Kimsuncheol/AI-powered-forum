@@ -222,12 +222,8 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
             ) : thread.type === 'markdown' ? (
               <Box sx={{ 
                 mb: 2, 
-                maxHeight: '200px', 
-                overflow: 'hidden', 
-                position: 'relative',
-                maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
                 '& p': { m: 0, mb: 1 },
-                img: { maxWidth: '100%', height: 'auto' }
+                '& img': { maxWidth: '100%', height: 'auto' }
                }}>
                 <ReactMarkdown rehypePlugins={[rehypeSanitize]} remarkPlugins={[remarkGfm]}>
                   {thread.body}
@@ -238,12 +234,8 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
                 variant="body2"
                 color="text.secondary"
                 sx={{
-                  display: "-webkit-box",
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
                   mb: 2,
-                  minHeight: "1.5em",
+                  whiteSpace: "pre-wrap",
                 }}
               >
                 {thread.body}

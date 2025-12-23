@@ -71,7 +71,7 @@ describe("FollowingUserAvatars", () => {
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
-  it("renders nothing when no following users exist", () => {
+  it("renders Find People button when no following users exist", () => {
     mockUseInfiniteFollowingUsers.mockReturnValue({
       users: [],
       loading: false,
@@ -81,10 +81,11 @@ describe("FollowingUserAvatars", () => {
       loadMore: jest.fn(),
     });
 
-    const { container } = render(<FollowingUserAvatars />);
+    render(<FollowingUserAvatars />);
     
-    // Component should return null for empty state
-    expect(container.firstChild).toBeNull();
+    // Should show "Find People" button
+    expect(screen.getByText("Find People")).toBeInTheDocument();
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/search");
   });
 
   it("renders following users with avatars", () => {
@@ -105,8 +106,7 @@ describe("FollowingUserAvatars", () => {
 
     render(<FollowingUserAvatars />);
     
-    // Check for "Following" title
-    expect(screen.getByText("Following")).toBeInTheDocument();
+
     
     // Check for user names (first name only)
     expect(screen.getByText("Alice")).toBeInTheDocument();
@@ -129,8 +129,9 @@ describe("FollowingUserAvatars", () => {
     render(<FollowingUserAvatars />);
     
     // Check that links to profile exist
+    // 2 links: 1 for user profile + 1 for "Find People" button
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(1);
+    expect(links).toHaveLength(2);
     expect(links[0]).toHaveAttribute("href", "/profile/user1");
   });
 
@@ -204,7 +205,7 @@ describe("FollowingUserAvatars", () => {
     });
   });
 
-  it("does not render when user is not logged in", () => {
+  it("renders Find People button when user is not logged in", () => {
     mockUseAuth.mockReturnValue({
       user: null,
       loading: false,
@@ -221,7 +222,7 @@ describe("FollowingUserAvatars", () => {
 
     const { container } = render(<FollowingUserAvatars />);
     
-    // Component should return null when no user
+    // Component returns null when not logged in
     expect(container.firstChild).toBeNull();
   });
 

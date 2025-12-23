@@ -113,6 +113,12 @@ export async function isFollowing(
   return snap.exists();
 }
 
+interface FollowDocument {
+  followerId: string;
+  followingId: string;
+  createdAt: unknown;
+}
+
 /**
  * Get list of users that a user follows.
  */
@@ -128,8 +134,7 @@ export async function getFollowing(
   );
 
   const snap = await getDocs(q);
-  // Fix type mismatch: DB has followerId/followingId, but type has Uid.
-  return snap.docs.map((d) => (d.data() as any).followingId);
+  return snap.docs.map((d) => (d.data() as FollowDocument).followingId);
 }
 
 /**
@@ -147,9 +152,7 @@ export async function getFollowers(
   );
 
   const snap = await getDocs(q);
-  // Fix type mismatch: DB has followerId/followingId, but type has Uid. 
-  // We trust the DB structure here based on followUser function.
-  return snap.docs.map((d) => (d.data() as any).followerId);
+  return snap.docs.map((d) => (d.data() as FollowDocument).followerId);
 }
 
 /**
@@ -178,7 +181,7 @@ export async function getFollowingPaginated(
   }
 
   const snap = await getDocs(q);
-  const uids = snap.docs.map((d) => (d.data() as any).followingId);
+  const uids = snap.docs.map((d) => (d.data() as FollowDocument).followingId);
   const newLastDoc = snap.docs.length > 0 ? snap.docs[snap.docs.length - 1] : null;
   
   return { uids, lastDoc: newLastDoc };

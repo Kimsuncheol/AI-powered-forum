@@ -66,6 +66,14 @@ export async function getThreadFeed({
         updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt : Timestamp.now(),
         tagIds: Array.isArray(data.tagIds) ? data.tagIds : [],
         categoryId: data.categoryId || "",
+        type: data.type || 'text',
+        linkUrl: data.linkUrl,
+        mediaUrl: data.mediaUrl,
+        imageUrls: data.imageUrls,
+        location: data.location,
+        likesCount: data.likesCount || data.likes || 0,
+        commentsCount: data.commentsCount || 0,
+        isNSFW: data.isNSFW,
       };
     });
 

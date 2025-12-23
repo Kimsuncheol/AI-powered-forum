@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -27,20 +27,11 @@ import SearchModal from "@/features/search/components/SearchModal";
 export default function Header() {
   const { user, loading, signOut } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [mounted, setMounted] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
   const [signUpOpen, setSignUpOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <div style={{ height: 64, backgroundColor: 'var(--background-paper)', borderBottom: '1px solid var(--divider)' }} />;
-  }
 
   if (pathname === "/signin" || pathname === "/signup") {
     return null;

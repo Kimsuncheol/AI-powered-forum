@@ -33,6 +33,9 @@ export interface Thread {
   likes: number;
   commentsCount: number;
   location?: LocationData;
+  type?: 'text' | 'markdown' | 'link' | 'video' | 'audio';
+  linkUrl?: string;
+  mediaUrl?: string;
 }
 
 export const THREADS_COLLECTION = "threads";
@@ -58,9 +61,19 @@ export async function getThreads(
     const data = doc.data();
     return {
       id: doc.id,
-      ...data,
-      // Convert Firestore Timestamp to millis if necessary, or pass through if already number
+      title: data.title,
+      // Map 'body' field from Firestore to 'content' for display
+      content: data.body || data.content || "",
+      authorId: data.authorId,
+      authorName: data.authorName || "",
       createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toMillis() : data.createdAt,
+      tags: data.tagIds || data.tags || [],
+      likes: data.likes || 0,
+      commentsCount: data.commentsCount || 0,
+      location: data.location,
+      type: data.type || 'text',
+      linkUrl: data.linkUrl,
+      mediaUrl: data.mediaUrl,
     } as Thread;
   });
 
@@ -78,8 +91,19 @@ export async function getThread(id: string): Promise<Thread | null> {
     const data = docSnap.data();
     return {
       id: docSnap.id,
-      ...data,
+      title: data.title,
+      // Map 'body' field from Firestore to 'content' for display
+      content: data.body || data.content || "",
+      authorId: data.authorId,
+      authorName: data.authorName || "",
       createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toMillis() : data.createdAt,
+      tags: data.tagIds || data.tags || [],
+      likes: data.likes || 0,
+      commentsCount: data.commentsCount || 0,
+      location: data.location,
+      type: data.type || 'text',
+      linkUrl: data.linkUrl,
+      mediaUrl: data.mediaUrl,
     } as Thread;
   }
   return null;

@@ -33,6 +33,7 @@ export function useInbox(): UseInboxResult {
       const data = await getUnreadInboxItems(user.uid);
       setItems(data);
     } catch (err) {
+      console.error(err);
       setError("Failed to fetch inbox");
     } finally {
       setLoading(false);

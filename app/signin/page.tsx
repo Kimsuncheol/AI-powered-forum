@@ -35,9 +35,11 @@ export default function SignInPage() {
     try {
       await signInWithEmail(email, password);
       router.push("/");
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      if (err.code === "auth/invalid-credential") {
+      // Type assertion to access the 'code' property safely
+      const firebaseError = err as { code?: string };
+      if (firebaseError.code === "auth/invalid-credential") {
         setError("Invalid email or password.");
       } else {
         setError("Failed to sign in. Please try again.");
@@ -148,11 +150,10 @@ export default function SignInPage() {
             </Button>
 
             <Box sx={{ textAlign: "center", mt: 2 }}>
-              <Link href="/signup" passHref legacyBehavior>
+              <Link href="/signup" style={{ textDecoration: "none" }}>
                 <Typography
                   variant="body2"
-                  component="a"
-                  sx={{ textDecoration: "none", color: "primary.main" }}
+                  sx={{ color: "primary.main" }}
                 >
                   {"Don't have an account? Sign Up"}
                 </Typography>
