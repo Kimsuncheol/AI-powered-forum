@@ -16,12 +16,12 @@ export const authService = {
   /**
    * Signs up a new user with email and password, and creates their Firestore profile.
    */
-  signUp: async (email: string, password: string) => {
+  signUp: async (email: string, password: string, providedDisplayName?: string) => {
     try {
       // 1. Create Auth User
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      const displayName = user.displayName || email.split("@")[0];
+      const displayName = providedDisplayName || user.displayName || email.split("@")[0];
 
       // 2. Create Firestore Profile
       // We use upsert to be safe, though set would work for new users.

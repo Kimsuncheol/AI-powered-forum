@@ -1,7 +1,6 @@
 import {
   doc,
   getDoc,
-  setDoc,
   updateDoc,
   collection,
   query,
@@ -9,11 +8,10 @@ import {
   getDocs,
   serverTimestamp,
   writeBatch,
-  deleteDoc,
+  increment,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
-  FollowRequest,
   RepoResult,
   ErrorCodes,
   RequestStatus,
@@ -210,6 +208,14 @@ export async function acceptFollowRequest(
     batch.update(doc.ref, { status: "READ" });
   });
 
+  // Update follower's following count
+  const followerRef = doc(db, "users", data.fromUid);
+  batch.update(followerRef, { followingCount: increment(1) });
+
+  // Update target's followers count
+  const followingRef = doc(db, "users", toUid);
+  batch.update(followingRef, { followersCount: increment(1) });
+
   await batch.commit();
 
   return { success: true };
@@ -294,7 +300,18 @@ export async function unfollow(
     };
   }
 
-  await deleteDoc(followRef);
+  const batch = writeBatch(db);
+  batch.delete(followRef);
+
+  // Update follower's following count
+  const followerRef = doc(db, "users", followerUid);
+  batch.update(followerRef, { followingCount: increment(-1) });
+
+  // Update target's followers count
+  const followingRef = doc(db, "users", followingUid);
+  batch.update(followingRef, { followersCount: increment(-1) });
+
+  await batch.commit();
 
   return { success: true };
 }

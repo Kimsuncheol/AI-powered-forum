@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Avatar, Typography, Chip, Skeleton, Paper } from "@mui/material";
+import Link from "next/link";
 import { UserProfile } from "../types";
 import { User } from "firebase/auth";
 
@@ -45,6 +46,19 @@ export default function ProfileHeader({ user, profile, loading }: ProfileHeaderP
         <Box sx={{ mt: 1, display: "flex", gap: 1, justifyContent: { xs: "center", sm: "flex-start" } }}>
           <Chip label={profile?.role || "User"} color="primary" size="small" variant="outlined" />
           <Chip label={`Joined ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : "N/A"}`} size="small" variant="outlined" />
+        </Box>
+
+        <Box sx={{ mt: 2, display: "flex", gap: 3, justifyContent: { xs: "center", sm: "flex-start" } }}>
+          <Link href="/profile/connections?type=following" style={{ textDecoration: "none", color: "inherit" }}>
+            <Typography variant="body2" sx={{ "&:hover": { textDecoration: "underline" } }}>
+              <strong>{profile?.followingCount || 0}</strong> Following
+            </Typography>
+          </Link>
+          <Link href="/profile/connections?type=followers" style={{ textDecoration: "none", color: "inherit" }}>
+            <Typography variant="body2" sx={{ "&:hover": { textDecoration: "underline" } }}>
+              <strong>{profile?.followersCount || 0}</strong> Followers
+            </Typography>
+          </Link>
         </Box>
       </Box>
     </Box>

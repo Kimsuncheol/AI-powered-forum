@@ -13,7 +13,7 @@ interface AuthContextType {
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, displayName?: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -71,9 +71,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
   
-  const handleSignUp = async (email: string, password: string) => {
+  const handleSignUp = async (email: string, password: string, displayName?: string) => {
     try {
-      await authService.signUp(email, password);
+      await authService.signUp(email, password, displayName);
       toast.success("You have been signed up", {
         autoClose: 5000,
         position: "top-right",

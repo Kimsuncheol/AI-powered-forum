@@ -10,6 +10,8 @@ import {
   serverTimestamp,
   increment,
   writeBatch,
+  startAfter,
+  DocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Follow } from "../types";
@@ -126,7 +128,8 @@ export async function getFollowing(
   );
 
   const snap = await getDocs(q);
-  return snap.docs.map((d) => (d.data() as Follow).followingId);
+  // Fix type mismatch: DB has followerId/followingId, but type has Uid.
+  return snap.docs.map((d) => (d.data() as any).followingId);
 }
 
 /**
@@ -144,5 +147,39 @@ export async function getFollowers(
   );
 
   const snap = await getDocs(q);
-  return snap.docs.map((d) => (d.data() as Follow).followerId);
+  // Fix type mismatch: DB has followerId/followingId, but type has Uid. 
+  // We trust the DB structure here based on followUser function.
+  return snap.docs.map((d) => (d.data() as any).followerId);
+}
+
+/**
+ * Get list of users that a user follows with pagination.
+ */
+export async function getFollowingPaginated(
+  userId: string,
+  maxResults: number = 20,
+  lastDoc: DocumentSnapshot | null = null
+): Promise<{ uids: string[]; lastDoc: DocumentSnapshot | null }> {
+  let q = query(
+    collection(db, FOLLOWS_COLLECTION),
+    where("followerId", "==", userId),
+    orderBy("createdAt", "desc"),
+    limit(maxResults)
+  );
+
+  if (lastDoc) {
+    q = query(
+      collection(db, FOLLOWS_COLLECTION),
+      where("followerId", "==", userId),
+      orderBy("createdAt", "desc"),
+      startAfter(lastDoc),
+      limit(maxResults)
+    );
+  }
+
+  const snap = await getDocs(q);
+  const uids = snap.docs.map((d) => (d.data() as any).followingId);
+  const newLastDoc = snap.docs.length > 0 ? snap.docs[snap.docs.length - 1] : null;
+  
+  return { uids, lastDoc: newLastDoc };
 }

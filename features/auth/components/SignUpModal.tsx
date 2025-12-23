@@ -25,6 +25,7 @@ interface SignUpModalProps {
 export default function SignUpModal({ open, onClose, onSwitchToSignIn }: SignUpModalProps) {
   const { signUp } = useAuth();
   const [email, setEmail] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function SignUpModal({ open, onClose, onSwitchToSignIn }: SignUpM
 
   const handleReset = () => {
     setEmail("");
+    setDisplayName("");
     setPassword("");
     setConfirmPassword("");
     setError(null);
@@ -61,11 +63,11 @@ export default function SignUpModal({ open, onClose, onSwitchToSignIn }: SignUpM
     setLoading(true);
 
     try {
-      await signUp(email, password);
+      await signUp(email, password, displayName);
       handleClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      if (err.code === "auth/email-already-in-use") {
+      if (err && typeof err === 'object' && 'code' in err && err.code === "auth/email-already-in-use") {
         setError("Email is already in use.");
       } else {
         setError("Failed to sign up. Please try again.");
@@ -111,6 +113,18 @@ export default function SignUpModal({ open, onClose, onSwitchToSignIn }: SignUpM
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="displayName"
+            label="Display Name"
+            name="displayName"
+            autoComplete="name"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
             disabled={loading}
           />
           <TextField

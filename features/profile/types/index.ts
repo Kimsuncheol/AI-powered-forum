@@ -1,4 +1,3 @@
-import { Timestamp } from "firebase/firestore";
 
 export interface UserProfile {
   uid: string;
@@ -26,6 +25,10 @@ export interface UserProfile {
   language?: string;
   timezone?: string;
   dateFormat?: 'MM/DD/YYYY' | 'DD/MM/YYYY';
+
+  // Stats
+  followersCount?: number;
+  followingCount?: number;
 }
 
 export interface UserActivityStats {
