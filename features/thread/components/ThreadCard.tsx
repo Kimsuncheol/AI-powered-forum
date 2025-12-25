@@ -13,8 +13,10 @@ import {
   Collapse,
   IconButton,
   Button,
+  Tooltip,
+  Snackbar,
 } from "@mui/material";
-import { Favorite, Comment, Warning, Visibility, Place } from "@mui/icons-material";
+import { Favorite, Comment, Warning, Visibility, Place, Share } from "@mui/icons-material";
 import { Thread } from "../types";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
@@ -44,12 +46,17 @@ interface ThreadCardProps {
 
 import { useSettings } from "@/context/SettingsContext";
 import { useLike } from "../hooks/useLike";
+import { useAuth } from "@/context/AuthContext";
 
 function ThreadCard({ thread, onClick }: ThreadCardProps) {
   const { autoPlayEnabled, nsfwFilterEnabled } = useSettings();
   const { isLiked, likeCount, toggleLike } = useLike(thread.id, thread.likesCount || 0);
+  const { user } = useAuth();
   const [showComments, setShowComments] = React.useState(false);
   const [nsfwRevealed, setNsfwRevealed] = React.useState(false);
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+
+  const isAuthenticated = !!user;
   
   // Safe date handling - use a stable fallback
   const getCreatedAtMillis = () => {
@@ -73,6 +80,15 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
     e.stopPropagation();
     e.preventDefault();
     setNsfwRevealed(true);
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const url = `${window.location.origin}/thread/${thread.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setSnackbarOpen(true);
+    });
   };
 
   // Check if content should be blurred
@@ -370,40 +386,60 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
 
               {/* Actions */}
               <Stack direction="row" spacing={0.5} color="text.secondary" alignItems="center" sx={{ justifyContent: "flex-end" }}>
-                <IconButton 
-                  size="small" 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    e.preventDefault(); 
-                    toggleLike();
-                  }}
-                  sx={{ p: 0.5 }}
-                >
-                  <Favorite 
-                    fontSize="small" 
-                    sx={{ fontSize: 16 }} 
-                    color={isLiked ? "error" : "disabled"} 
-                  />
-                </IconButton>
+                <Tooltip title={isAuthenticated ? "" : "Sign in to like"}>
+                  <span>
+                    <IconButton 
+                      size="small" 
+                      disabled={!isAuthenticated}
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        e.preventDefault(); 
+                        toggleLike();
+                      }}
+                      sx={{ p: 0.5 }}
+                    >
+                      <Favorite 
+                        fontSize="small" 
+                        sx={{ fontSize: 16 }} 
+                        color={isLiked ? "error" : "disabled"} 
+                      />
+                    </IconButton>
+                  </span>
+                </Tooltip>
                 <Typography variant="caption" sx={{ fontSize: "0.7rem", fontWeight: 700 }}>
                   {likeCount}
                 </Typography>
                 
-                <Button 
-                  size="small" 
-                  startIcon={<Comment sx={{ fontSize: 16 }} />}
-                  sx={{ 
-                    color: showComments ? "primary.main" : "text.secondary", 
-                    minWidth: "auto",
-                    px: 0.75,
-                    py: 0.25,
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                  }}
-                  onClick={handleCommentClick}
-                >
-                  {thread.commentsCount || 0}
-                </Button>
+                <Tooltip title={isAuthenticated ? "" : "Sign in to comment"}>
+                  <span>
+                    <Button 
+                      size="small" 
+                      disabled={!isAuthenticated}
+                      startIcon={<Comment sx={{ fontSize: 16 }} />}
+                      sx={{ 
+                        color: showComments ? "primary.main" : "text.secondary", 
+                        minWidth: "auto",
+                        px: 0.75,
+                        py: 0.25,
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                      }}
+                      onClick={handleCommentClick}
+                    >
+                      {thread.commentsCount || 0}
+                    </Button>
+                  </span>
+                </Tooltip>
+
+                <Tooltip title="Copy link">
+                  <IconButton 
+                    size="small" 
+                    onClick={handleShare}
+                    sx={{ p: 0.5 }}
+                  >
+                    <Share fontSize="small" sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Tooltip>
               </Stack>
             </Box>
           </CardContent>
@@ -424,6 +460,14 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
           <CommentSection threadId={thread.id} />
         </Box>
       </Collapse>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={2000}
+        onClose={() => setSnackbarOpen(false)}
+        message="Link copied to clipboard"
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      />
     </Card>
   );
 }

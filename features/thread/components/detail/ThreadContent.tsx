@@ -1,6 +1,6 @@
-import React from "react";
-import { Box, Typography, IconButton, Stack } from "@mui/material";
-import { Link as LinkIcon, OpenInNew, VideoLibrary, Audiotrack, Favorite } from "@mui/icons-material";
+import React, { useState } from "react";
+import { Box, Typography, IconButton, Stack, Tooltip, Snackbar } from "@mui/material";
+import { Link as LinkIcon, OpenInNew, VideoLibrary, Audiotrack, Favorite, Share } from "@mui/icons-material";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import "react-h5-audio-player/lib/styles.css";
 import { Thread } from "@/lib/db/threads";
 import { useLike } from "@/features/thread/hooks/useLike";
+import { useAuth } from "@/context/AuthContext";
 
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as React.ComponentType<{
   url: string;
@@ -26,6 +27,18 @@ interface ThreadContentProps {
 
 export default function ThreadContent({ thread, threadId }: ThreadContentProps) {
   const { isLiked, likeCount, toggleLike } = useLike(threadId, thread.likesCount || 0);
+  const { user } = useAuth();
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const isAuthenticated = !!user;
+
+  const handleShare = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      setSnackbarOpen(true);
+    });
+  };
+
   return (
     <>
       {thread.type === 'link' && thread.linkUrl ? (
@@ -109,19 +122,38 @@ export default function ThreadContent({ thread, threadId }: ThreadContentProps) 
 
       {/* Like/Actions Section */}
       <Stack direction="row" spacing={1} sx={{ mb: 3 }} alignItems="center">
-        <IconButton
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleLike();
-          }}
-          sx={{ p: 1 }}
-        >
-          <Favorite sx={{ fontSize: 24 }} color={isLiked ? "error" : "disabled"} />
-        </IconButton>
+        <Tooltip title={isAuthenticated ? "" : "Sign in to like"}>
+          <span>
+            <IconButton
+              disabled={!isAuthenticated}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleLike();
+              }}
+              sx={{ p: 1 }}
+            >
+              <Favorite sx={{ fontSize: 24 }} color={isLiked ? "error" : "disabled"} />
+            </IconButton>
+          </span>
+        </Tooltip>
         <Typography variant="body1" fontWeight="bold">
           {likeCount} {likeCount === 1 ? "like" : "likes"}
         </Typography>
+
+        <Tooltip title="Copy link">
+          <IconButton onClick={handleShare} sx={{ p: 1 }}>
+            <Share sx={{ fontSize: 24 }} />
+          </IconButton>
+        </Tooltip>
       </Stack>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={2000}
+        onClose={() => setSnackbarOpen(false)}
+        message="Link copied to clipboard"
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      />
     </>
   );
 }
