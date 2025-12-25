@@ -80,7 +80,7 @@ export default function ThreadDetailPage() {
         <ThreadAISummary thread={thread} />
       </Paper>
 
-      <CommentSection threadId={id} />
+      <CommentSection threadId={id} threadAuthorId={thread.authorId} threadTitle={thread.title} />
     </Container>
   );
 }

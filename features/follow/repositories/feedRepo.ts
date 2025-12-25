@@ -79,6 +79,10 @@ export async function fetchFollowingFeed(params: {
       updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt : Timestamp.now(),
       tagIds: Array.isArray(data.tagIds) ? data.tagIds : [],
       categoryId: data.categoryId || "",
+      type: data.type || "text",
+      likes: data.likes || 0,
+      commentsCount: data.commentsCount || 0,
+      likesCount: data.likesCount || 0,
     };
   });
 

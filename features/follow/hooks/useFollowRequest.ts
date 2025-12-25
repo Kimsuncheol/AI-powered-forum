@@ -70,6 +70,10 @@ export function useFollowRequest(targetUserId: string | undefined): UseFollowReq
       const result = await sendFollowRequest(user.uid, targetUserId);
       if (result.success) {
         setStatus("PENDING");
+        // Send email notification to target user (fire and forget)
+        import("@/lib/notifications/notificationService").then(({ notifyFollowRequest }) => {
+          notifyFollowRequest(targetUserId, user.displayName || "Someone").catch(console.error);
+        });
       } else {
         setError(result.errorMessage || "Failed to send request");
       }
@@ -77,7 +81,7 @@ export function useFollowRequest(targetUserId: string | undefined): UseFollowReq
     } finally {
       setLoading(false);
     }
-  }, [user?.uid, targetUserId]);
+  }, [user?.uid, user?.displayName, targetUserId]);
 
   const cancelRequest = useCallback(async (): Promise<RepoResult> => {
     if (!user?.uid || !targetUserId) {

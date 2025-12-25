@@ -7,12 +7,15 @@ import { getCommentsForThread, createComment } from "../api/commentRepo";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
 import { useAuth } from "@/context/AuthContext";
+import { notifyComment } from "@/lib/notifications/notificationService";
 
 interface CommentSectionProps {
   threadId: string;
+  threadAuthorId?: string;
+  threadTitle?: string;
 }
 
-export default function CommentSection({ threadId }: CommentSectionProps) {
+export default function CommentSection({ threadId, threadAuthorId, threadTitle }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -43,6 +46,17 @@ export default function CommentSection({ threadId }: CommentSectionProps) {
         parentId: null, // Top-level
       });
       setComments((prev) => [newComment, ...prev]);
+
+      // Send email notification to thread author
+      if (threadAuthorId && threadTitle && threadAuthorId !== user.uid) {
+        // Fire and forget - don't block on email
+        notifyComment(
+          threadAuthorId,
+          user.displayName || "Someone",
+          threadTitle,
+          content
+        ).catch(console.error);
+      }
     } catch (error) {
       console.error("Failed to post comment", error);
       alert("Failed to post comment. Please try again.");
@@ -82,3 +96,4 @@ export default function CommentSection({ threadId }: CommentSectionProps) {
     </Box>
   );
 }
+

@@ -50,7 +50,10 @@ import { useAuth } from "@/context/AuthContext";
 
 function ThreadCard({ thread, onClick }: ThreadCardProps) {
   const { autoPlayEnabled, nsfwFilterEnabled } = useSettings();
-  const { isLiked, likeCount, toggleLike } = useLike(thread.id, thread.likesCount || 0);
+  const { isLiked, likeCount, toggleLike } = useLike(thread.id, thread.likesCount || 0, {
+    threadAuthorId: thread.authorId,
+    threadTitle: thread.title,
+  });
   const { user } = useAuth();
   const [showComments, setShowComments] = React.useState(false);
   const [nsfwRevealed, setNsfwRevealed] = React.useState(false);
@@ -457,7 +460,7 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
           }} 
           onClick={(e) => e.stopPropagation()}
         >
-          <CommentSection threadId={thread.id} />
+          <CommentSection threadId={thread.id} threadAuthorId={thread.authorId} threadTitle={thread.title} />
         </Box>
       </Collapse>
 

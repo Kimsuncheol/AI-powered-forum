@@ -96,11 +96,11 @@ export function UserCard({ user }: UserCardProps) {
       <CardContent>
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar
-            src={user.photoURL}
-            alt={user.displayName || user.email}
+            src={user.photoURL || undefined}
+            alt={user.displayName || user.email || undefined}
             sx={{ width: 56, height: 56 }}
           >
-            {(user.displayName || user.email)[0].toUpperCase()}
+            {(user.displayName || user.email || "?")[0].toUpperCase()}
           </Avatar>
 
           <Box sx={{ flex: 1, minWidth: 0 }}>

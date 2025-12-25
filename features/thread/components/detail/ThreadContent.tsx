@@ -26,7 +26,10 @@ interface ThreadContentProps {
 }
 
 export default function ThreadContent({ thread, threadId }: ThreadContentProps) {
-  const { isLiked, likeCount, toggleLike } = useLike(threadId, thread.likesCount || 0);
+  const { isLiked, likeCount, toggleLike } = useLike(threadId, thread.likesCount || 0, {
+    threadAuthorId: thread.authorId,
+    threadTitle: thread.title,
+  });
   const { user } = useAuth();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
