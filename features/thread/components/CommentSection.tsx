@@ -63,6 +63,16 @@ export default function CommentSection({ threadId, threadAuthorId, threadTitle }
     }
   };
 
+  const handleUpdateComment = (commentId: string, newBody: string) => {
+    setComments((prev) =>
+      prev.map((c) => (c.id === commentId ? { ...c, body: newBody } : c))
+    );
+  };
+
+  const handleDeleteComment = (commentId: string) => {
+    setComments((prev) => prev.filter((c) => c.id !== commentId));
+  };
+
   return (
     <Box>
       <Typography variant="h5" fontWeight="bold" gutterBottom>
@@ -86,7 +96,13 @@ export default function CommentSection({ threadId, threadAuthorId, threadTitle }
       ) : (
         <Stack spacing={2}>
           {comments.map((comment) => (
-            <CommentItem key={comment.id} comment={comment} threadId={threadId} />
+            <CommentItem 
+              key={comment.id} 
+              comment={comment} 
+              threadId={threadId}
+              onUpdate={handleUpdateComment}
+              onDelete={handleDeleteComment}
+            />
           ))}
           {comments.length === 0 && (
               <Typography color="text.secondary">No comments yet. Be the first to share your thoughts!</Typography>
@@ -96,4 +112,5 @@ export default function CommentSection({ threadId, threadAuthorId, threadTitle }
     </Box>
   );
 }
+
 

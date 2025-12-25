@@ -59,8 +59,13 @@ export async function createComment(
   const commentsRef = collection(db, COMMENTS_COLLECTION);
   const now = serverTimestamp();
   
+  // Filter out undefined values (Firestore doesn't accept undefined)
+  const cleanedData = Object.fromEntries(
+    Object.entries(commentData).filter(([, v]) => v !== undefined)
+  );
+  
   const docRef = await addDoc(commentsRef, {
-    ...commentData,
+    ...cleanedData,
     replyCount: 0,
     createdAt: now,
     updatedAt: now,
@@ -170,5 +175,91 @@ export async function getCommentFeed({
       nextCursor: null,
       hasMore: false,
     };
+  }
+}
+
+/**
+ * Update a comment's body (ownership check required)
+ */
+export async function updateComment(
+  commentId: string,
+  newBody: string,
+  authorId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const commentRef = doc(db, COMMENTS_COLLECTION, commentId);
+    const commentSnap = await getDocs(query(collection(db, COMMENTS_COLLECTION), where("__name__", "==", commentId)));
+    
+    if (commentSnap.empty) {
+      return { success: false, error: "Comment not found" };
+    }
+
+    const commentData = commentSnap.docs[0].data();
+    if (commentData.authorId !== authorId) {
+      return { success: false, error: "You can only edit your own comments" };
+    }
+
+    await updateDoc(commentRef, {
+      body: newBody,
+      updatedAt: serverTimestamp(),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update comment:", error);
+    return { success: false, error: "Failed to update comment" };
+  }
+}
+
+/**
+ * Delete a comment (ownership check required)
+ */
+export async function deleteComment(
+  commentId: string,
+  authorId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const commentRef = doc(db, COMMENTS_COLLECTION, commentId);
+    const commentSnap = await getDocs(query(collection(db, COMMENTS_COLLECTION), where("__name__", "==", commentId)));
+    
+    if (commentSnap.empty) {
+      return { success: false, error: "Comment not found" };
+    }
+
+    const commentData = commentSnap.docs[0].data();
+    if (commentData.authorId !== authorId) {
+      return { success: false, error: "You can only delete your own comments" };
+    }
+
+    const { deleteDoc } = await import("firebase/firestore");
+    
+    // If this is a reply, decrement parent's replyCount
+    if (commentData.parentId) {
+      const parentRef = doc(db, COMMENTS_COLLECTION, commentData.parentId);
+      try {
+        await updateDoc(parentRef, {
+          replyCount: increment(-1)
+        });
+      } catch (e) {
+        console.warn("Could not update parent reply count", e);
+      }
+    }
+
+    // Decrement thread's comment count
+    const threadRef = doc(db, "threads", commentData.threadId);
+    try {
+      await updateDoc(threadRef, {
+        commentsCount: increment(-1)
+      });
+    } catch (e) {
+      console.warn("Could not update thread comment count", e);
+    }
+
+    await deleteDoc(commentRef);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete comment:", error);
+    return { success: false, error: "Failed to delete comment" };
   }
 }
