@@ -1,7 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode } from "react";
-import { ThemeProvider as MUIThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import React, { createContext, useContext, useState, useMemo, ReactNode } from "react";
+import { ThemeProvider as MUIThemeProvider, createTheme, CssBaseline, useMediaQuery } from "@mui/material";
 import { getThemeOptions } from "@/lib/theme";
 
 type Mode = "light" | "dark" | "system";
@@ -14,30 +14,17 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<Mode>("light");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const savedMode = localStorage.getItem("themeMode") as Mode;
-    if (savedMode) {
-      setMode(savedMode);
+  const [mode, setMode] = useState<Mode>(() => {
+    if (typeof window !== "undefined") {
+      const savedMode = localStorage.getItem("themeMode") as Mode;
+      if (savedMode && ["light", "dark", "system"].includes(savedMode)) {
+        return savedMode;
+      }
     }
-    setMounted(true);
-  }, []);
+    return "light";
+  });
 
-  const [systemIsDark, setSystemIsDark] = useState(false);
-
-  useEffect(() => {
-    setSystemIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e: MediaQueryListEvent) => {
-      setSystemIsDark(e.matches);
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  const systemIsDark = useMediaQuery("(prefers-color-scheme: dark)");
 
   const resolvedMode = mode === "system" 
     ? (systemIsDark ? "dark" : "light") 

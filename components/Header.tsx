@@ -17,13 +17,13 @@ import {
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
-import { AddCircleOutlineOutlined, Search as SearchIcon, ChatBubbleOutline } from "@mui/icons-material";
+import { AddCircleOutlineOutlined, ChatBubbleOutline, Search as SearchIcon } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import InboxRoundedIcon from '@mui/icons-material/InboxRounded';
 import SignInModal from "@/features/auth/components/SignInModal";
 import SignUpModal from "@/features/auth/components/SignUpModal";
 import SearchModal from "@/features/search/components/SearchModal";
-import { ChatModal } from "@/features/chat/components/ChatModal";
+
 import { useMediaQuery } from "@mui/material";
 
 export default function Header() {
@@ -32,7 +32,7 @@ export default function Header() {
   const [signInOpen, setSignInOpen] = useState(false);
   const [signUpOpen, setSignUpOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+
   const pathname = usePathname();
   const router = useRouter();
   const isMobile = useMediaQuery("(min-width:430px)");
@@ -143,7 +143,7 @@ export default function Header() {
                   <InboxRoundedIcon sx={{ fontSize: 20 }} />
                 </IconButton>
                 <IconButton
-                  onClick={() => setChatOpen(true)}
+                  onClick={() => router.push("/chat")}
                   size="small"
                   sx={{ p: 0.75 }}
                   data-testid="chat-trigger-button"
@@ -263,10 +263,7 @@ export default function Header() {
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
       />
-      <ChatModal
-        open={chatOpen}
-        onClose={() => setChatOpen(false)}
-      />
+
     </AppBar>
   );
 }

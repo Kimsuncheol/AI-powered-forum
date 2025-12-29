@@ -4,16 +4,15 @@ import React, { useRef, useEffect } from "react";
 import {
   Box,
   Typography,
-  Avatar,
-  IconButton,
-  Skeleton,
-  Stack,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useChatRoom } from "../hooks/useChatRoom";
 import { ChatMessageBubble } from "./ChatMessageBubble";
 import { ChatMessageInput } from "./ChatMessageInput";
+import { ChatHeader } from "./ChatHeader";
+import { ChatLoading } from "./ChatLoading";
+import { ChatError } from "./ChatError";
 import { useAuth } from "@/context/AuthContext";
+import { useMessageActions } from "../hooks/useMessageActions";
 
 interface ChatViewProps {
   roomId: string;
@@ -34,83 +33,65 @@ export function ChatView({ roomId, onBack }: ChatViewProps) {
     sendMessage({ content });
   };
 
+  // Message actions
+  const {
+    handleEdit,
+    handleDelete,
+    handleReaction,
+    handleCopy,
+  } = useMessageActions();
+
+  const onEditMessage = (messageId: string, content: string) => {
+    // You could populate an input field here or use a dialog
+    const newContent = prompt("Edit message:", content);
+    if (newContent && newContent.trim()) {
+      handleEdit(messageId, newContent.trim(), roomId);
+    }
+  };
+
+  const onDeleteMessage = (messageId: string) => {
+    if (confirm("Delete this message?")) {
+      handleDelete(messageId, roomId);
+    }
+  };
+
+  const onReactionMessage = (messageId: string, emoji: string) => {
+    handleReaction(messageId, emoji, roomId);
+  };
+
   if (loading) {
-    return (
-      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        {/* Header skeleton */}
-        <Box sx={{ p: 1.5, borderBottom: 1, borderColor: "divider" }}>
-          <Stack direction="row" alignItems="center" spacing={1.5}>
-            <Skeleton variant="circular" width={36} height={36} />
-            <Skeleton variant="text" width={120} height={24} />
-          </Stack>
-        </Box>
-        {/* Messages skeleton */}
-        <Box sx={{ flex: 1, p: 2 }}>
-          {[1, 2, 3].map((i) => (
-            <Box
-              key={i}
-              sx={{ display: "flex", mb: 2, justifyContent: i % 2 ? "flex-start" : "flex-end" }}
-            >
-              <Skeleton variant="rounded" width={200} height={40} />
-            </Box>
-          ))}
-        </Box>
-      </Box>
-    );
+    return <ChatLoading onBack={onBack} />;
   }
 
   if (error || !room) {
-    return (
-      <Box sx={{ p: 3, textAlign: "center" }}>
-        <Typography color="error">{error || "Chat not found"}</Typography>
-        <IconButton onClick={onBack} sx={{ mt: 2 }}>
-          <ArrowBackIcon />
-        </IconButton>
-      </Box>
-    );
+    return <ChatError error={error} onBack={onBack} />;
   }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Header */}
-      <Box
-        sx={{
-          p: 1.5,
-          borderBottom: 1,
-          borderColor: "divider",
-          bgcolor: "background.paper",
+      <ChatHeader
+        participantName={room.participantName}
+        participantAvatar={room.participantAvatar}
+        participantEmail={room.participantEmail}
+        onBack={onBack}
+        room={room}
+        onRoomUpdated={() => {
+          // Room will auto-refresh via useChatRoom hook
         }}
-      >
-        <Stack direction="row" alignItems="center" spacing={1.5}>
-          <IconButton onClick={onBack} size="small" sx={{ mr: 0.5 }}>
-            <ArrowBackIcon fontSize="small" />
-          </IconButton>
-          <Avatar
-            src={room.participantAvatar}
-            alt={room.participantName}
-            sx={{ width: 36, height: 36 }}
-          >
-            {(room.participantName || "U")[0].toUpperCase()}
-          </Avatar>
-          <Box>
-            <Typography variant="subtitle2" fontWeight={600}>
-              {room.participantName}
-            </Typography>
-            {room.participantEmail && (
-              <Typography variant="caption" color="text.secondary">
-                {room.participantEmail}
-              </Typography>
-            )}
-          </Box>
-        </Stack>
-      </Box>
+        onRoomLeft={() => {
+          // Navigate back to chat list
+          onBack();
+        }}
+      />
 
       {/* Messages */}
       <Box
         sx={{
           flex: 1,
           overflowY: "auto",
-          p: 2,
+          p: 1.5,
+          flexGrow: 1,
           bgcolor: "background.default",
         }}
       >
@@ -136,6 +117,11 @@ export function ChatView({ roomId, onBack }: ChatViewProps) {
               isOwn={msg.senderId === user?.uid}
               senderName={msg.senderId === user?.uid ? "You" : room.participantName}
               senderAvatar={msg.senderId === user?.uid ? user?.photoURL || undefined : room.participantAvatar}
+              currentUserId={user?.uid}
+              onEdit={onEditMessage}
+              onDelete={onDeleteMessage}
+              onReaction={onReactionMessage}
+              onCopy={handleCopy}
             />
           ))
         )}

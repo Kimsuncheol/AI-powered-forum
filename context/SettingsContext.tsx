@@ -129,10 +129,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const handleStorageChange = (e: StorageEvent) => {
       if (!e.key) return;
       
-      const updateValue = (setter: (val: any) => void, defaultValue: any) => {
+      const updateValue = <T,>(setter: (val: T) => void, defaultValue: T) => {
         if (e.newValue !== null) {
           try {
-            setter(JSON.parse(e.newValue));
+            setter(JSON.parse(e.newValue) as T);
           } catch {
             setter(defaultValue);
           }

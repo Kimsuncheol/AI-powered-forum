@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { getChatRooms } from "../repositories/chatRepository";
+import { subscribeToChatRooms } from "../repositories/chatRepository";
 import { ChatRoom, ChatRoomWithParticipant } from "../types";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -13,70 +13,80 @@ export function useChatRooms() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadRooms = useCallback(async () => {
+  useEffect(() => {
     if (!user?.uid) {
       setRooms([]);
       setLoading(false);
       return;
     }
 
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const chatRooms = await getChatRooms(user.uid);
-      
-      // Enrich rooms with participant info
-      const enrichedRooms = await Promise.all(
-        chatRooms.map(async (room: ChatRoom) => {
-          const otherParticipantId = room.participants.find(
-            (p) => p !== user.uid
-          );
-          
-          let participantName = "Unknown User";
-          let participantAvatar: string | undefined;
-          let participantEmail: string | undefined;
-          
-          if (otherParticipantId) {
-            try {
-              const userDoc = await getDoc(doc(db, "users", otherParticipantId));
-              if (userDoc.exists()) {
-                const userData = userDoc.data();
-                participantName = userData.displayName || userData.email || "Unknown User";
-                participantAvatar = userData.photoURL;
-                participantEmail = userData.email;
-              }
-            } catch {
-              // Keep defaults if user fetch fails
-            }
-          }
-          
-          return {
-            ...room,
-            participantName,
-            participantAvatar,
-            participantEmail,
-          } as ChatRoomWithParticipant;
-        })
-      );
-      
-      setRooms(enrichedRooms);
-    } catch (err) {
-      console.error("Failed to load chat rooms:", err);
-      setError("Failed to load chats. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.uid]);
+    setLoading(true);
+    setError(null);
 
-  useEffect(() => {
-    loadRooms();
-  }, [loadRooms]);
+    const unsubscribe = subscribeToChatRooms(user.uid, async (chatRooms) => {
+      try {
+        // Enrich rooms with participant info
+        const enrichedRooms = await Promise.all(
+          chatRooms.map(async (room: ChatRoom) => {
+            const otherParticipantId = room.participants.find(
+              (p) => p !== user.uid
+            );
+            
+            let participantName = "Unknown User";
+            let participantAvatar: string | undefined;
+            let participantEmail: string | undefined;
+            
+            if (otherParticipantId) {
+              try {
+                const userDoc = await getDoc(doc(db, "users", otherParticipantId));
+                if (userDoc.exists()) {
+                  const userData = userDoc.data();
+                  participantName = userData.displayName || userData.email || "Unknown User";
+                  participantAvatar = userData.photoURL;
+                  participantEmail = userData.email;
+                }
+              } catch {
+                // Keep defaults if user fetch fails
+              }
+            }
+            
+            return {
+              ...room,
+              participantName,
+              participantAvatar,
+              participantEmail,
+            } as ChatRoomWithParticipant;
+          })
+        );
+
+        // Sort rooms: Pinned first, then by lastMessageAt descending
+        const sortedRooms = enrichedRooms.sort((a, b) => {
+          // 1. Pinned status
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+
+          // 2. Last message time (descending)
+          const timeA = a.lastMessageAt?.toMillis() || 0;
+          const timeB = b.lastMessageAt?.toMillis() || 0;
+          return timeB - timeA;
+        });
+        
+        setRooms(sortedRooms);
+      } catch (err) {
+        console.error("Failed to process chat rooms:", err);
+        setError("Failed to load chats.");
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   return {
     rooms,
     loading,
     error,
-    refresh: loadRooms,
+    refresh: () => {}, // No-op since it's real-time now
   };
 }

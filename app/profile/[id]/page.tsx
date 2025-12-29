@@ -13,13 +13,16 @@ import {
   Paper,
   Skeleton,
   Button,
+  CircularProgress,
 } from "@mui/material";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useUserProfile } from "@/features/profile/hooks/useUserProfile";
 import { useFollowRelationship } from "@/features/follow/hooks/useFollowRelationship";
 import MyThreadsTab from "@/features/profile/components/tabs/MyThreadsTab";
 import MyCommentsTab from "@/features/profile/components/tabs/MyCommentsTab";
+import { useChatWithUser } from "@/features/chat/hooks/useChatWithUser";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -57,6 +60,15 @@ export default function UserProfilePage() {
     cancelRequest,
     unfollow,
   } = useFollowRelationship(currentUser?.uid || null, id);
+
+  // Chat hook
+  const {
+    existingRoomId,
+    loading: chatLoading,
+    actionLoading: chatActionLoading,
+    startChat,
+    openChat,
+  } = useChatWithUser(currentUser?.uid, id);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -168,17 +180,39 @@ export default function UserProfilePage() {
           </Box>
         </Box>
 
-        {/* Follow Button (only show for other users) */}
+        {/* Action Buttons (only show for other users) */}
         {currentUser && !isOwnProfile && (
-          <Button
-            variant={followStatus === "FOLLOWING" ? "outlined" : "contained"}
-            color={followStatus === "REQUESTED" ? "warning" : "primary"}
-            onClick={handleFollowAction}
-            disabled={followLoading}
-            sx={{ textTransform: "none", minWidth: 100 }}
-          >
-            {getFollowButtonText()}
-          </Button>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, alignItems: { xs: "center", sm: "flex-end" } }}>
+            <Button
+              variant={followStatus === "FOLLOWING" ? "outlined" : "contained"}
+              color={followStatus === "REQUESTED" ? "warning" : "primary"}
+              onClick={handleFollowAction}
+              disabled={followLoading}
+              sx={{ textTransform: "none", minWidth: 100 }}
+            >
+              {getFollowButtonText()}
+            </Button>
+
+            {/* Chat Button - only show if following */}
+            {followStatus === "FOLLOWING" && !chatLoading && (
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={existingRoomId ? openChat : startChat}
+                disabled={chatActionLoading}
+                startIcon={
+                  chatActionLoading ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : (
+                    <ChatBubbleOutlineIcon fontSize="small" />
+                  )
+                }
+                sx={{ textTransform: "none", minWidth: 100 }}
+              >
+                {existingRoomId ? "Open Chat" : "Start Chat"}
+              </Button>
+            )}
+          </Box>
         )}
       </Box>
 

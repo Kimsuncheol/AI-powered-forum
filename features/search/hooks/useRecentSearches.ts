@@ -1,12 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
+import { useSettings } from "@/context/SettingsContext";
 
-const MAX_RECENT_SEARCHES = 5;
 const STORAGE_KEY = "recent_searches";
-const AUTO_SAVE_KEY = "search_auto_save";
 
 export function useRecentSearches() {
+  const { 
+    searchAutoSave, 
+    toggleSearchAutoSave, 
+    maxRecentSearches 
+  } = useSettings();
+
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
     if (typeof window === 'undefined') return [];
     try {
@@ -17,44 +22,21 @@ export function useRecentSearches() {
     }
   });
 
-  const [isAutoSaveEnabled, setIsAutoSaveEnabled] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    const stored = localStorage.getItem(AUTO_SAVE_KEY);
-    return stored !== null ? stored === "true" : true;
-  });
-  
-  // Use a ref to access the latest auto-save state in callbacks without adding it to dependencies
-  const isAutoSaveEnabledRef = useRef(isAutoSaveEnabled);
-
-  // Sync ref with state
-  useEffect(() => {
-    isAutoSaveEnabledRef.current = isAutoSaveEnabled;
-  }, [isAutoSaveEnabled]);
-
-  const toggleAutoSave = useCallback(() => {
-    setIsAutoSaveEnabled((prev) => {
-      const next = !prev;
-      localStorage.setItem(AUTO_SAVE_KEY, String(next));
-      isAutoSaveEnabledRef.current = next;
-      return next;
-    });
-  }, []);
-
   const addSearch = useCallback((keyword: string) => {
     const trimmed = keyword.trim();
     if (!trimmed) return;
 
-    if (!isAutoSaveEnabledRef.current) {
+    if (!searchAutoSave) {
       return;
     }
 
     setRecentSearches((prev) => {
       const filtered = prev.filter((item) => item !== trimmed);
-      const updated = [trimmed, ...filtered].slice(0, MAX_RECENT_SEARCHES);
+      const updated = [trimmed, ...filtered].slice(0, maxRecentSearches);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });
-  }, []);
+  }, [searchAutoSave, maxRecentSearches]);
 
   const clearSearches = useCallback(() => {
     setRecentSearches([]);
@@ -71,8 +53,8 @@ export function useRecentSearches() {
 
   return {
     recentSearches,
-    isAutoSaveEnabled,
-    toggleAutoSave,
+    isAutoSaveEnabled: searchAutoSave,
+    toggleAutoSave: toggleSearchAutoSave,
     addSearch,
     clearSearches,
     removeSearch,

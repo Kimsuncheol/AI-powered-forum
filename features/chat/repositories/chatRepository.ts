@@ -14,6 +14,7 @@ import {
   arrayUnion,
   onSnapshot,
   Unsubscribe,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { ChatRoom, ChatMessage, NewChatMessage } from "../types";
@@ -39,6 +40,28 @@ export async function getChatRooms(userId: string): Promise<ChatRoom[]> {
 }
 
 /**
+ * Subscribe to chat rooms for a user (real-time)
+ */
+export function subscribeToChatRooms(
+  userId: string,
+  callback: (rooms: ChatRoom[]) => void
+): Unsubscribe {
+  const q = query(
+    collection(db, CHAT_ROOMS_COLLECTION),
+    where("participants", "array-contains", userId),
+    orderBy("lastMessageAt", "desc")
+  );
+  
+  return onSnapshot(q, (snapshot) => {
+    const rooms = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as ChatRoom[];
+    callback(rooms);
+  });
+}
+
+/**
  * Get a single chat room by ID
  */
 export async function getChatRoom(roomId: string): Promise<ChatRoom | null> {
@@ -56,6 +79,33 @@ export async function getChatRoom(roomId: string): Promise<ChatRoom | null> {
 }
 
 /**
+ * Find an existing chat room between two users (without creating)
+ */
+export async function findChatRoom(
+  userId: string,
+  targetUserId: string
+): Promise<string | null> {
+  const q = query(
+    collection(db, CHAT_ROOMS_COLLECTION),
+    where("participants", "array-contains", userId)
+  );
+  
+  const snapshot = await getDocs(q);
+  
+  for (const doc of snapshot.docs) {
+    const room = doc.data() as ChatRoom;
+    if (
+      room.participants.length === 2 &&
+      room.participants.includes(targetUserId)
+    ) {
+      return doc.id;
+    }
+  }
+  
+  return null;
+}
+
+/**
  * Find an existing chat room between two users or create a new one
  */
 export async function getOrCreateChatRoom(
@@ -70,13 +120,13 @@ export async function getOrCreateChatRoom(
   
   const snapshot = await getDocs(q);
   
-  for (const doc of snapshot.docs) {
-    const room = doc.data() as ChatRoom;
+  for (const docSnap of snapshot.docs) {
+    const roomData = docSnap.data();
     if (
-      room.participants.length === 2 &&
-      room.participants.includes(targetUserId)
+      roomData.participants?.length === 2 &&
+      roomData.participants.includes(targetUserId)
     ) {
-      return { id: doc.id, ...room };
+      return { ...roomData, id: docSnap.id } as ChatRoom;
     }
   }
   
@@ -234,4 +284,190 @@ export async function markAsRead(
     );
   
   await Promise.all(updatePromises);
+}
+
+/**
+ * Edit a message
+ */
+export async function editMessage(
+  roomId: string,
+  messageId: string,
+  newContent: string
+): Promise<void> {
+  const messageRef = doc(
+    db,
+    CHAT_ROOMS_COLLECTION,
+    roomId,
+    MESSAGES_SUBCOLLECTION,
+    messageId
+  );
+  
+  await updateDoc(messageRef, {
+    content: newContent,
+    editedAt: serverTimestamp(),
+  });
+  
+  // Update room's last message if this was the last message
+  await updateDoc(doc(db, CHAT_ROOMS_COLLECTION, roomId), {
+    lastMessage: newContent,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Delete a message
+ */
+export async function deleteMessage(
+  roomId: string,
+  messageId: string
+): Promise<void> {
+  const messageRef = doc(
+    db,
+    CHAT_ROOMS_COLLECTION,
+    roomId,
+    MESSAGES_SUBCOLLECTION,
+    messageId
+  );
+  
+  await deleteDoc(messageRef);
+}
+
+/**
+ * Add a reaction to a message
+ */
+export async function addReaction(
+  roomId: string,
+  messageId: string,
+  emoji: string,
+  userId: string
+): Promise<void> {
+  const messageRef = doc(
+    db,
+    CHAT_ROOMS_COLLECTION,
+    roomId,
+    MESSAGES_SUBCOLLECTION,
+    messageId
+  );
+  
+  const messageDoc = await getDoc(messageRef);
+  if (!messageDoc.exists()) return;
+  
+  const data = messageDoc.data();
+  const reactions = data.reactions || [];
+  
+  // Find existing reaction with this emoji
+  const existingReactionIndex = reactions.findIndex(
+    (r: { emoji: string }) => r.emoji === emoji
+  );
+  
+  if (existingReactionIndex >= 0) {
+    // Add user to existing reaction if not already there
+    const userIds = reactions[existingReactionIndex].userIds || [];
+    if (!userIds.includes(userId)) {
+      reactions[existingReactionIndex].userIds = [...userIds, userId];
+    }
+  } else {
+    // Create new reaction
+    reactions.push({ emoji, userIds: [userId] });
+  }
+  
+  await updateDoc(messageRef, { reactions });
+}
+
+/**
+ * Remove a reaction from a message
+ */
+export async function removeReaction(
+  roomId: string,
+  messageId: string,
+  emoji: string,
+  userId: string
+): Promise<void> {
+  const messageRef = doc(
+    db,
+    CHAT_ROOMS_COLLECTION,
+    roomId,
+    MESSAGES_SUBCOLLECTION,
+    messageId
+  );
+  
+  const messageDoc = await getDoc(messageRef);
+  if (!messageDoc.exists()) return;
+  
+  const data = messageDoc.data();
+  const reactions = data.reactions || [];
+  
+  // Find reaction with this emoji
+  const reactionIndex = reactions.findIndex(
+    (r: { emoji: string }) => r.emoji === emoji
+  );
+  
+  if (reactionIndex >= 0) {
+    const userIds = reactions[reactionIndex].userIds.filter(
+      (id: string) => id !== userId
+    );
+    
+    if (userIds.length === 0) {
+      // Remove reaction entirely if no users left
+      reactions.splice(reactionIndex, 1);
+    } else {
+      reactions[reactionIndex].userIds = userIds;
+    }
+    
+    await updateDoc(messageRef, { reactions });
+  }
+}
+
+/**
+ * Rename a chat room
+ */
+export async function renameChatRoom(
+  roomId: string,
+  newName: string
+): Promise<void> {
+  const roomRef = doc(db, CHAT_ROOMS_COLLECTION, roomId);
+  await updateDoc(roomRef, {
+    roomName: newName,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Leave a chat room (remove user from participants)
+ */
+export async function leaveChatRoom(
+  roomId: string,
+  userId: string
+): Promise<void> {
+  const roomRef = doc(db, CHAT_ROOMS_COLLECTION, roomId);
+  const roomDoc = await getDoc(roomRef);
+  
+  if (!roomDoc.exists()) return;
+  
+  const data = roomDoc.data();
+  const newParticipants = data.participants.filter((id: string) => id !== userId);
+  
+  if (newParticipants.length === 0) {
+    // Delete room if no participants left
+    await deleteDoc(roomRef);
+  } else {
+    await updateDoc(roomRef, {
+      participants: newParticipants,
+      updatedAt: serverTimestamp(),
+    });
+  }
+}
+
+/**
+ * Toggle pin status on a chat room
+ */
+export async function togglePinChatRoom(
+  roomId: string,
+  isPinned: boolean
+): Promise<void> {
+  const roomRef = doc(db, CHAT_ROOMS_COLLECTION, roomId);
+  await updateDoc(roomRef, {
+    isPinned,
+    updatedAt: serverTimestamp(),
+  });
 }

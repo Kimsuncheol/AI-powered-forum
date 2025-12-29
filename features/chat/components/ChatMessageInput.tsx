@@ -39,8 +39,9 @@ export function ChatMessageInput({
       sx={{
         display: "flex",
         alignItems: "flex-end",
-        gap: 1,
-        p: 1.5,
+        gap: 0.75,
+        height: 'content',
+        p: 1,
         borderTop: 1,
         borderColor: "divider",
         bgcolor: "background.paper",

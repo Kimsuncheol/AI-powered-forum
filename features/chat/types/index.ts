@@ -1,35 +1,49 @@
 import { Timestamp } from "firebase/firestore";
 
-// Chat room interface
+/**
+ * Base ChatRoom type representing a chat room in Firestore
+ */
 export interface ChatRoom {
   id: string;
-  participants: string[]; // UIDs of participants
-  lastMessage?: string;
-  lastMessageAt?: Timestamp;
-  lastMessageSenderId?: string;
+  participants: string[]; // Array of user IDs
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  lastMessageAt?: Timestamp;
+  lastMessage?: string;
+  roomName?: string; // Optional custom room name
+  isPinned?: boolean;
+  alertsEnabled?: boolean;
+  unreadCount?: { [userId: string]: number };
 }
 
-// Individual chat message
+/**
+ * Extended ChatRoom with participant information
+ * Used when displaying chat rooms in the UI
+ */
+export interface ChatRoomWithParticipant extends ChatRoom {
+  participantName: string;
+  participantAvatar?: string;
+  participantEmail?: string;
+}
+
+/**
+ * Chat message type
+ */
 export interface ChatMessage {
   id: string;
   roomId: string;
   senderId: string;
   content: string;
   createdAt: Timestamp;
-  readBy: string[]; // UIDs who have read the message
+  readBy?: string[]; // Array of user IDs who have read the message
+  reactions?: { [userId: string]: string }; // User ID to emoji mapping
+  isEdited?: boolean;
+  isDeleted?: boolean;
 }
 
-// Enriched room data with participant info (for UI)
-export interface ChatRoomWithParticipant extends ChatRoom {
-  participantName?: string;
-  participantAvatar?: string;
-  participantEmail?: string;
-  unreadCount?: number;
-}
-
-// Message input data (without id and createdAt)
+/**
+ * New message type for creating messages
+ */
 export interface NewChatMessage {
   content: string;
 }
