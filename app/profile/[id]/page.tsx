@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Tabs,
@@ -63,7 +63,7 @@ export default function UserProfilePage() {
   };
 
   const handleFollowAction = () => {
-    if (followStatus === "NONE") {
+    if (followStatus === "NOT_FOLLOWING") {
       requestFollow();
     } else if (followStatus === "REQUESTED") {
       cancelRequest();

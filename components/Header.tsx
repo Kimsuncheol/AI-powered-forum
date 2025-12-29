@@ -24,6 +24,7 @@ import SignInModal from "@/features/auth/components/SignInModal";
 import SignUpModal from "@/features/auth/components/SignUpModal";
 import SearchModal from "@/features/search/components/SearchModal";
 import { ChatModal } from "@/features/chat/components/ChatModal";
+import { useMediaQuery } from "@mui/material";
 
 export default function Header() {
   const { user, loading, signOut } = useAuth();
@@ -34,6 +35,7 @@ export default function Header() {
   const [chatOpen, setChatOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const isMobile = useMediaQuery("(min-width:430px)");
 
   if (pathname === "/signin" || pathname === "/signup") {
     return null;
@@ -148,23 +150,34 @@ export default function Header() {
                 >
                   <ChatBubbleOutline sx={{ fontSize: 20 }} />
                 </IconButton>
-                <Button
+                {
+                  isMobile ? (<IconButton
                   component={Link}
                   href="/threads/new"
-                  variant="outlined"
+                  size="small"
                   color="primary"
-                  startIcon={<AddCircleOutlineOutlined sx={{ fontSize: 18 }} />}
-                  sx={{ 
-                    textTransform: "none", 
-                    borderRadius: 20,
-                    fontSize: "0.875rem",
-                    px: 2,
-                    py: 0.5,
-                    fontWeight: 700,
-                  }}
                 >
-                  Create
-                </Button>
+                  <AddCircleOutlineOutlined sx={{ fontSize: 24 }} />
+                </IconButton>) : (
+                    <Button
+                      component={Link}
+                      href="/threads/new"
+                      variant="outlined"
+                      color="primary"
+                      startIcon={<AddCircleOutlineOutlined sx={{ fontSize: 18 }} />}
+                      sx={{ 
+                        textTransform: "none", 
+                        borderRadius: 20,
+                        fontSize: "0.875rem",
+                        px: 2,
+                        py: 0.5,
+                        fontWeight: 700,
+                      }}
+                    >
+                      Create
+                    </Button>
+                  )
+                }
                 <IconButton onClick={handleMenuOpen} sx={{ p: 0, ml: 1 }}>
                   <Avatar
                     alt={user.displayName || "User"}

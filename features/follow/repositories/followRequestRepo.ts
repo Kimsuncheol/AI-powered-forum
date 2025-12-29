@@ -1,7 +1,7 @@
 import {
   doc,
   getDoc,
-  updateDoc,
+
   collection,
   query,
   where,
@@ -136,10 +136,24 @@ export async function cancelFollowRequest(
     };
   }
 
-  await updateDoc(requestRef, {
-    status: "CANCELED" as RequestStatus,
-    updatedAt: serverTimestamp(),
+  const batch = writeBatch(db);
+
+  // 1. Delete the follow request document
+  batch.delete(requestRef);
+
+  // 2. Find and delete the corresponding inbox item for the target user
+  const inboxQuery = query(
+    collection(db, INBOX_COLLECTION, toUid, "items"),
+    where("referenceId", "==", requestId),
+    where("type", "==", "follow_request")
+  );
+  
+  const inboxSnap = await getDocs(inboxQuery);
+  inboxSnap.docs.forEach((doc) => {
+    batch.delete(doc.ref);
   });
+
+  await batch.commit();
 
   return { success: true };
 }
