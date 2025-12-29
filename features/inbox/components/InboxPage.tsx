@@ -7,7 +7,7 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 
 export function InboxPage() {
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>

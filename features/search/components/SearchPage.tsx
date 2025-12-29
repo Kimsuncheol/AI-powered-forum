@@ -92,7 +92,7 @@ export function SearchPage() {
   const showEmptyState = !loading && !error && !!normalizedDebouncedQuery && activeResults.length === 0;
 
   return (
-    <Container maxWidth="md" sx={{ py: 6 }}>
+    <Container maxWidth="lg" sx={{ py: 6 }}>
       <Stack spacing={3}>
         <Box>
           <Typography variant="h4" fontWeight="bold" gutterBottom>

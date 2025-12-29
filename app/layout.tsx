@@ -41,7 +41,7 @@ export default function RootLayout({
             <ThemeProvider>
               <AppRouterCacheProvider>
                 <Header />
-                <Container sx={{ width: "100%", py: 2 }}>{children}</Container>
+                <Container maxWidth="xl" sx={{ py: 2 }}>{children}</Container>
               </AppRouterCacheProvider>
             </ThemeProvider>
           </SettingsProvider>

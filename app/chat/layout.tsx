@@ -8,7 +8,7 @@ export default function ChatLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Container maxWidth="md" sx={{ py: 2 }}>
+    <Container maxWidth="xl" sx={{ py: 2 }}>
       <Box
         sx={{
           height: "calc(100vh - 120px)",

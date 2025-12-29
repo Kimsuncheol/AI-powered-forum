@@ -38,7 +38,7 @@ export default function SettingsView() {
   );
 
   return (
-    <Box sx={{ maxWidth: 900, mx: "auto" }}>
+    <Box sx={{ maxWidth: "lg", mx: "auto" }}>
       <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
         Settings
       </Typography>

@@ -65,7 +65,7 @@ export default function ThreadDetailPage() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Button startIcon={<ArrowBack />} onClick={() => router.back()} sx={{ mb: 2 }}>
         Back
       </Button>

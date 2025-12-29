@@ -23,7 +23,7 @@ export default function Dashboard() {
   }, [loadInitial]);
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto" }}>
+    <Box sx={{ maxWidth: "lg", mx: "auto" }}>
       {/* Welcome Header */}
       {/* Following Users Avatars */}
       <FollowingUserAvatars />
