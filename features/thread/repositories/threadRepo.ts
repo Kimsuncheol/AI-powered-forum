@@ -4,6 +4,10 @@ import {
   doc,
   getDoc,
   serverTimestamp,
+  query,
+  orderBy,
+  limit,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { ThreadCreateInput, Thread } from "../types";
@@ -94,6 +98,31 @@ export async function createThread(
   } catch (error) {
     console.error("Error creating thread:", error);
     throw new Error("Failed to create thread. Please try again later.");
+  }
+}
+
+/**
+ * Fetches recent threads.
+ * 
+ * @param limitCount - The maximum number of threads to fetch (default: 20)
+ * @returns List of threads
+ */
+export async function getRecentThreads(limitCount: number = 20): Promise<Thread[]> {
+  try {
+    const q = query(
+      collection(db, THREADS_COLLECTION),
+      orderBy("createdAt", "desc"),
+      limit(limitCount)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Thread));
+  } catch (error) {
+    console.error("Error fetching recent threads:", error);
+    return [];
   }
 }
 

@@ -1,5 +1,6 @@
 import { getAI, getGenerativeModel, ResponseModality, GoogleAIBackend } from "firebase/ai";
 import { app } from "@/lib/firebase"; 
+import { getRecentThreads } from "@/features/thread/repositories/threadRepo";
 
 export interface AiImageResponse {
   b64_json: string;
@@ -161,4 +162,49 @@ export const aiService = {
        throw error;
      }
   },
+
+  /**
+   * Generates an answer based on forum context (RAG-like).
+   */
+  generateAnswerFromForum: async (question: string): Promise<string> => {
+    try {
+      // 1. Fetch Context
+      const threads = await getRecentThreads(30);
+
+      // 2. Prepare Context String
+      const context = threads.map(t => {
+        return `Thread Title: ${t.title}
+Body: ${t.body}
+ID: ${t.id}
+---`;
+      }).join('\n');
+
+      const prompt = `You are a helpful assistant for a community forum.
+Your task is to answer the user's question based ONLY on the provided forum context.
+If the answer cannot be found in the context, state that you don't have enough information from the recent threads.
+Do not invent facts.
+
+IMPORTANT: When you reference specific threads in your answer, include the thread ID using this exact format: [THREAD:thread-id-here]
+For example: "You can find more details in this thread [THREAD:abc123]"
+Always include thread references when they are relevant to your answer.
+
+Context from Forum Threads:
+${context}
+
+User Question: ${question}
+
+Answer:`;
+
+      // 3. Call AI
+      const ai = getAI(app, { backend: new GoogleAIBackend() });
+      const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
+
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    } catch (error) {
+      console.error("Error generating answer from forum:", error);
+      throw error;
+    }
+  },
 };
+
