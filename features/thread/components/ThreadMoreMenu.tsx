@@ -18,6 +18,7 @@ import { Send, ContentCopy } from "@mui/icons-material";
 import { useBookmark } from "@/features/collections";
 import { useAuth } from "@/context/AuthContext";
 import ForwardToChatModal from "./ForwardToChatModal";
+import { toast } from "react-toastify";
 
 interface ThreadMoreMenuProps {
   threadId: string;
@@ -44,6 +45,7 @@ export default function ThreadMoreMenu({
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
+
   const open = Boolean(anchorEl);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -58,22 +60,19 @@ export default function ThreadMoreMenu({
 
   const handleBookmark = async () => {
     if (!user) {
-      setSnackbarMessage("Please sign in to save threads");
-      setSnackbarOpen(true);
+      toast.error("Please sign in to save threads");
       handleClose();
       return;
     }
 
     await toggleBookmark();
-    setSnackbarMessage(isBookmarked ? "Removed from saved" : "Saved to collection");
-    setSnackbarOpen(true);
+    toast.success(isBookmarked ? "Removed from saved" : "Saved to collection");
     handleClose();
   };
 
   const handleForward = () => {
     if (!user) {
-      setSnackbarMessage("Please sign in to forward threads");
-      setSnackbarOpen(true);
+      toast.error("Please sign in to forward threads");
       handleClose();
       return;
     }
@@ -85,15 +84,14 @@ export default function ThreadMoreMenu({
   const handleCopy = () => {
     const url = `${window.location.origin}/thread/${threadId}`;
     navigator.clipboard.writeText(url).then(() => {
-      setSnackbarMessage("Link copied to clipboard");
-      setSnackbarOpen(true);
+      toast.success("Link copied to clipboard");
     });
     handleClose();
   };
 
   const handleForwardSuccess = () => {
-    setSnackbarMessage("Thread forwarded successfully");
-    setSnackbarOpen(true);
+    toast.success("Thread forwarded successfully");
+    handleClose();
   };
 
   return (

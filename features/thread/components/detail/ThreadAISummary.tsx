@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Paper, Typography, Box, Button, CircularProgress } from "@mui/material";
 import { AutoAwesome } from "@mui/icons-material";
 import ReactMarkdown from "react-markdown";
-import { summarizeThread } from "@/lib/api/ai";
+import { aiService } from "@/features/ai/api/aiService";
 import { Thread } from "@/lib/db/threads";
 
 interface ThreadAISummaryProps {
@@ -16,7 +16,8 @@ export default function ThreadAISummary({ thread }: ThreadAISummaryProps) {
   const handleSummarize = async () => {
     setLoadingSummary(true);
     try {
-      const result = await summarizeThread(thread.id, thread.content);
+      const prompt = `Summarize the following thread content into a concise summary:\n\nTitle: ${thread.title}\n\nContent:\n${thread.content}`;
+      const result = await aiService.generateText(prompt);
       setSummary(result);
     } catch (err) {
       console.error(err);

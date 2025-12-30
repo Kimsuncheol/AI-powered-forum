@@ -11,6 +11,23 @@ export const aiService = {
    * @param prompt The text description for the image.
    * @returns The generated image data (base64).
    */
+  generateText: async (prompt: string): Promise<string> => {
+    try {
+      const ai = getAI(app, { backend: new GoogleAIBackend() });
+      const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
+
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      return response.text();
+    } catch (error) {
+      console.error('Error generating text:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Generates an image from a text prompt using Firebase AILogic (Gemini).
+   */
   generateImage: async (prompt: string): Promise<AiImageResponse> => {
     console.log('generateImage', prompt);
     try {
