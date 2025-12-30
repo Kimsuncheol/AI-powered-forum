@@ -32,8 +32,8 @@ export default function AnswersPage() {
   };
 
   return (
-    <Box sx={{ maxWidth: 'lg', mx: 'auto', py: 4 }}>
-      <AnswerHeader />
+    <Box sx={{ maxWidth: 'lg', height: 'calc(100vh - 256px)', mx: 'auto', py: 4 }} id="answer-page">
+      { !answer && <AnswerHeader /> }
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 

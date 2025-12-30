@@ -45,6 +45,10 @@ export const AnswerResult = ({ answer }: AnswerResultProps) => {
     <Card 
       variant="outlined" 
       sx={{ 
+        height: 'calc(100vh - 314px)',
+        overflowY: 'auto',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
         borderRadius: 4, 
         bgcolor: 'background.paper', 
         boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
