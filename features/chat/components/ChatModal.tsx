@@ -8,12 +8,19 @@ import {
   IconButton,
   useTheme,
   useMediaQuery,
+  Avatar,
+  Tooltip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
 import { ChatRoomList } from "./ChatRoomList";
 import { ChatView } from "./ChatView";
+import { ChatModalHeader } from "./ChatModalHeader";
 import { ChatRoomWithParticipant } from "../types";
+import { useAuth } from "@/context/AuthContext";
+import { markAsRead } from "../repositories/chatRepository";
 
 interface ChatModalProps {
   open: boolean;
@@ -21,7 +28,9 @@ interface ChatModalProps {
 }
 
 export function ChatModal({ open, onClose }: ChatModalProps) {
-  const [selectedRoom, setSelectedRoom] = useState<ChatRoomWithParticipant | null>(null);
+  const { user } = useAuth();
+  const [selectedRoom, setSelectedRoom] =
+    useState<ChatRoomWithParticipant | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -38,6 +47,15 @@ export function ChatModal({ open, onClose }: ChatModalProps) {
     onClose();
   };
 
+  const handleMarkAllRead = async () => {
+    if (!selectedRoom || !user?.uid) return;
+    try {
+      await markAsRead(selectedRoom.id, user.uid);
+    } catch (error) {
+      console.error("Failed to mark all as read:", error);
+    }
+  };
+
   return (
     <Drawer
       anchor={isMobile ? "bottom" : "right"}
@@ -46,11 +64,16 @@ export function ChatModal({ open, onClose }: ChatModalProps) {
       PaperProps={{
         sx: {
           width: isMobile ? "100%" : 380,
-          height: isMobile ? "85vh" : "100%",
-          borderTopLeftRadius: isMobile ? 16 : 0,
-          borderTopRightRadius: isMobile ? 16 : 0,
+          height: isMobile ? "40vh" : "60vh",
+          borderRadius: isMobile ? "16px 16px 0 0" : 3,
+          bottom: isMobile ? 0 : 20,
+          right: isMobile ? 0 : 20,
+          top: "auto",
+          m: isMobile ? 0 : 2,
           display: "flex",
           flexDirection: "column",
+          boxShadow: theme.shadows[10],
+          overflow: "hidden",
         },
       }}
       data-testid="chat-modal"
@@ -64,42 +87,63 @@ export function ChatModal({ open, onClose }: ChatModalProps) {
           overflow: "hidden",
         }}
       >
-        {/* Show room list or chat view */}
-        {selectedRoom ? (
-          <ChatView roomId={selectedRoom.id} onBack={handleBack} />
-        ) : (
-          <>
-            {/* Header */}
-            <Box
-              sx={{
-                p: 2,
-                borderBottom: 1,
-                borderColor: "divider",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                bgcolor: "background.paper",
-              }}
-            >
+        <ChatModalHeader
+          title={
+            selectedRoom ? (
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <ChatBubbleOutlineIcon color="primary" />
-                <Typography variant="h6" fontWeight={700}>
-                  Chats
+                <Avatar
+                  src={selectedRoom.participantAvatar}
+                  sx={{ width: 32, height: 32 }}
+                />
+                <Typography variant="subtitle1" fontWeight={700}>
+                  {selectedRoom.roomName || selectedRoom.participantName}
                 </Typography>
               </Box>
-              <IconButton onClick={handleClose} size="small">
-                <CloseIcon fontSize="small" />
+            ) : (
+              "Chats"
+            )
+          }
+          startAction={
+            selectedRoom ? (
+              <IconButton onClick={handleBack} size="small">
+                <ArrowBackIcon fontSize="small" />
               </IconButton>
-            </Box>
+            ) : (
+              <ChatBubbleOutlineIcon color="primary" />
+            )
+          }
+          endAction={
+            !selectedRoom && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Tooltip title="Mark all as read">
+                  <IconButton
+                    onClick={handleMarkAllRead}
+                    size="small"
+                    color="primary"
+                  >
+                    <DoneAllIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Close">
+                  <IconButton onClick={handleClose} size="small">
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            )
+          }
+        />
 
-            {/* Room list */}
-            <Box sx={{ flex: 1, overflow: "auto" }}>
-              <ChatRoomList
-                onSelectRoom={handleSelectRoom}
-              />
+        {/* Content */}
+        <Box sx={{ flex: 1, overflow: "hidden" }}>
+          {selectedRoom ? (
+            <ChatView roomId={selectedRoom.id} onBack={handleBack} />
+          ) : (
+            <Box sx={{ flex: 1, overflow: "auto", height: "100%" }}>
+              <ChatRoomList onSelectRoom={handleSelectRoom} />
             </Box>
-          </>
-        )}
+          )}
+        </Box>
       </Box>
     </Drawer>
   );

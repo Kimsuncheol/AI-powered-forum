@@ -8,7 +8,6 @@ import {
   Typography,
   Stack,
   Box,
-  Badge,
 } from "@mui/material";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import { formatDistanceToNow } from "date-fns";
@@ -22,6 +21,7 @@ interface ChatRoomCardProps {
   isActive?: boolean;
   onRoomUpdated?: () => void;
   onRoomLeft?: () => void;
+  currentUserId?: string;
 }
 
 const LONG_PRESS_DURATION = 500; // ms
@@ -32,6 +32,7 @@ export function ChatRoomCard({
   isActive = false,
   onRoomUpdated,
   onRoomLeft,
+  currentUserId,
 }: ChatRoomCardProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
@@ -44,7 +45,9 @@ export function ChatRoomCard({
 
   const displayName = room.roomName || room.participantName || "Unknown";
   const avatarLetter = displayName[0].toUpperCase();
-  const hasUnread = (room.unreadCount ?? 0) > 0;
+  
+  const unreadCount = currentUserId && room.unreadCount ? (room.unreadCount[currentUserId] || 0) : 0;
+  const hasUnread = unreadCount > 0;
 
   const handleTouchStart = () => {
     isLongPress.current = false;
@@ -96,22 +99,14 @@ export function ChatRoomCard({
           sx={{ p: 1.5 }}
         >
           <Stack direction="row" spacing={1.5} alignItems="center">
-            {/* Avatar with unread badge */}
-            <Badge
-              color="primary"
-              variant="dot"
-              invisible={!hasUnread}
-              overlap="circular"
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            {/* Avatar */}
+            <Avatar
+              src={room.participantAvatar}
+              alt={displayName}
+              sx={{ width: 44, height: 44 }}
             >
-              <Avatar
-                src={room.participantAvatar}
-                alt={displayName}
-                sx={{ width: 44, height: 44 }}
-              >
-                {avatarLetter}
-              </Avatar>
-            </Badge>
+              {avatarLetter}
+            </Avatar>
 
             {/* Content */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -144,6 +139,27 @@ export function ChatRoomCard({
                 {room.lastMessage || "No messages yet"}
               </Typography>
             </Box>
+
+            {/* Unread Count */}
+            {hasUnread && (
+              <Box
+                sx={{
+                  bgcolor: "primary.main",
+                  color: "primary.contrastText",
+                  minWidth: 20,
+                  height: 20,
+                  borderRadius: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  px: 0.75,
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                }}
+              >
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </Box>
+            )}
           </Stack>
         </CardActionArea>
       </Card>

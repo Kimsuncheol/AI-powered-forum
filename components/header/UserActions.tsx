@@ -5,17 +5,16 @@ import { Box, IconButton, Button, Badge } from "@mui/material";
 import Link from "next/link";
 import { AddCircleOutlineOutlined, ChatBubbleOutline } from "@mui/icons-material";
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import { useRouter } from "next/navigation";
 import { useInbox } from "@/features/inbox/hooks/useInbox";
 import { useChatRooms } from "@/features/chat/hooks/useChatRooms";
 import { useAuth } from "@/context/AuthContext";
 
 interface UserActionsProps {
   isMobile: boolean;
+  onChatClick: () => void;
 }
 
-export default function UserActions({ isMobile }: UserActionsProps) {
-  const router = useRouter();
+export default function UserActions({ isMobile, onChatClick }: UserActionsProps) {
   const { user } = useAuth();
   const { items: inboxItems } = useInbox();
   const { rooms } = useChatRooms();
@@ -57,7 +56,7 @@ export default function UserActions({ isMobile }: UserActionsProps) {
         </Badge>
       </IconButton>
       <IconButton
-        onClick={() => router.push("/chat")}
+        onClick={onChatClick}
         size="small"
         sx={{ p: 0.75 }}
         data-testid="chat-trigger-button"

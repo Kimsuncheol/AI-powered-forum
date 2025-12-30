@@ -20,6 +20,7 @@ import SearchBar from "./header/SearchBar";
 import UserActions from "./header/UserActions";
 import UserMenu from "./header/UserMenu";
 import AuthButtons from "./header/AuthButtons";
+import { ChatModal } from "@/features/chat/components/ChatModal";
 
 export default function Header() {
   const { user, loading, signOut } = useAuth();
@@ -27,6 +28,7 @@ export default function Header() {
   const [signInOpen, setSignInOpen] = useState(false);
   const [signUpOpen, setSignUpOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const pathname = usePathname();
   const isMobile = useMediaQuery("(min-width:430px)");
@@ -82,7 +84,7 @@ export default function Header() {
               <Skeleton variant="circular" width={32} height={32} />
             ) : user ? (
               <>
-                <UserActions isMobile={isMobile} />
+                <UserActions isMobile={isMobile} onChatClick={() => setChatOpen(true)} />
                 <UserMenu
                   user={user}
                   anchorEl={anchorEl}
@@ -120,6 +122,7 @@ export default function Header() {
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
       />
+      <ChatModal open={chatOpen} onClose={() => setChatOpen(false)} />
     </AppBar>
   );
 }

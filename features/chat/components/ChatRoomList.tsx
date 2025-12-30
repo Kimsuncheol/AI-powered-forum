@@ -10,6 +10,7 @@ import {
   Skeleton,
 } from "@mui/material";
 import { useChatRooms } from "../hooks/useChatRooms";
+import { useAuth } from "@/context/AuthContext";
 import { ChatRoomCard } from "./ChatRoomCard";
 import { ChatRoomWithParticipant } from "../types";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
@@ -21,6 +22,7 @@ interface ChatRoomListProps {
 
 export function ChatRoomList({ onSelectRoom, activeRoomId }: ChatRoomListProps) {
   const { rooms, loading, error } = useChatRooms();
+  const { user } = useAuth();
 
   // Loading skeleton
   if (loading && rooms.length === 0) {
@@ -78,6 +80,7 @@ export function ChatRoomList({ onSelectRoom, activeRoomId }: ChatRoomListProps) 
             room={room}
             onClick={onSelectRoom}
             isActive={room.id === activeRoomId}
+            currentUserId={user?.uid}
           />
         </ListItem>
       ))}

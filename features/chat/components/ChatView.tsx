@@ -8,7 +8,6 @@ import {
 import { useChatRoom } from "../hooks/useChatRoom";
 import { ChatMessageBubble } from "./ChatMessageBubble";
 import { ChatMessageInput } from "./ChatMessageInput";
-import { ChatHeader } from "./ChatHeader";
 import { ChatLoading } from "./ChatLoading";
 import { ChatError } from "./ChatError";
 import { useAuth } from "@/context/AuthContext";
@@ -69,22 +68,6 @@ export function ChatView({ roomId, onBack }: ChatViewProps) {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Header */}
-      <ChatHeader
-        participantName={room.participantName}
-        participantAvatar={room.participantAvatar}
-        participantEmail={room.participantEmail}
-        onBack={onBack}
-        room={room}
-        onRoomUpdated={() => {
-          // Room will auto-refresh via useChatRoom hook
-        }}
-        onRoomLeft={() => {
-          // Navigate back to chat list
-          onBack();
-        }}
-      />
-
       {/* Messages */}
       <Box
         sx={{
@@ -133,3 +116,4 @@ export function ChatView({ roomId, onBack }: ChatViewProps) {
     </Box>
   );
 }
+
