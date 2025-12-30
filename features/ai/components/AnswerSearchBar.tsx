@@ -70,6 +70,11 @@ export const AnswerSearchBar = ({
             bgcolor: "primary.main",
             color: "white",
           },
+          // disable bg color when disabled
+          "&:disabled": {
+            bgcolor: "transparent",
+            color: "action.active",
+          },
         }}
       >
         {loading ? (

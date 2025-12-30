@@ -73,25 +73,93 @@ export default function CommentSection({ threadId, threadAuthorId, threadTitle }
     setComments((prev) => prev.filter((c) => c.id !== commentId));
   };
 
+  // Calculate total comment count including nested replies
+  const totalCommentCount = React.useMemo(() => {
+    return comments.reduce((total, comment) => {
+      return total + 1 + (comment.replyCount || 0);
+    }, 0);
+  }, [comments]);
+
   return (
     <Box>
-      <Typography variant="h5" fontWeight="bold" gutterBottom>
-        Comments
-      </Typography>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1.5,
+          mb: 3,
+          pb: 2,
+          borderBottom: '2px solid',
+          borderColor: 'primary.main',
+        }}
+      >
+        <Typography 
+          variant="h5" 
+          fontWeight="bold"
+          sx={{
+            color: 'primary.main',
+          }}
+        >
+          Comments
+        </Typography>
+        <Box
+          sx={{
+            ml: 'auto',
+            px: 1.5,
+            py: 0.5,
+            borderRadius: 2,
+            bgcolor: 'primary.main',
+            color: 'white',
+            fontSize: '0.75rem',
+            fontWeight: 'bold',
+          }}
+        >
+          {totalCommentCount}
+        </Box>
+      </Box>
 
       {user ? (
-        <Box sx={{ mb: 4 }}>
+        <Box 
+          sx={{ 
+            mb: 4,
+            p: 2,
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+            transition: 'all 0.3s',
+            '&:hover': {
+              borderColor: 'primary.main',
+              boxShadow: '0 2px 12px rgba(33, 150, 243, 0.1)',
+            }
+          }}
+        >
           <CommentForm onSubmit={handlePostComment} />
         </Box>
       ) : (
-        <Typography color="text.secondary" sx={{ mb: 4 }}>
+        <Box
+          sx={{
+            mb: 4,
+            p: 3,
+            borderRadius: 3,
+            border: '2px dashed',
+            borderColor: 'divider',
+            bgcolor: 'action.hover',
+            textAlign: 'center',
+          }}
+        >
+          <Typography 
+            color="text.secondary"
+            sx={{ fontSize: '0.95rem' }}
+          >
             Please sign in to comment.
-        </Typography>
+          </Typography>
+        </Box>
       )}
 
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress />
+          <CircularProgress sx={{ color: 'primary.main' }} />
         </Box>
       ) : (
         <Stack spacing={2}>
@@ -104,9 +172,6 @@ export default function CommentSection({ threadId, threadAuthorId, threadTitle }
               onDelete={handleDeleteComment}
             />
           ))}
-          {comments.length === 0 && (
-              <Typography color="text.secondary">No comments yet. Be the first to share your thoughts!</Typography>
-          )}
         </Stack>
       )}
     </Box>

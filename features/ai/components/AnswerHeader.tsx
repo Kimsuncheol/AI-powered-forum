@@ -5,7 +5,8 @@ import { AutoAwesome } from "@mui/icons-material";
 
 export const AnswerHeader = () => {
   return (
-    <Box sx={{ textAlign: 'center', mb: 6, mt: 4 }}>
+    <Box sx={{ textAlign: 'center', mb: 6, height: '50%' }}>
+      <Box sx={{ height: '80%' }} />
       <Typography 
         variant="h3" 
         fontWeight="800" 
