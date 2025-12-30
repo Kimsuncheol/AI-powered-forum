@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { Box, Typography } from "@mui/material";
 import { VideoLibrary, Audiotrack } from "@mui/icons-material";
 import "react-h5-audio-player/lib/styles.css";
+import InfiniteImageCarousel from "./InfiniteImageCarousel";
 
 // Dynamic imports for SSR safety
 const ReactPlayer = dynamic(() => import("react-player"), {
@@ -89,61 +90,9 @@ export default function ThreadMediaContent({
         </Box>
       )}
 
-      {/* Image Grid */}
+      {/* Image Carousel */}
       {imageUrls && imageUrls.length > 0 && (
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "repeat(2, 1fr)",
-              sm: "repeat(3, 1fr)",
-            },
-            gap: 1,
-            mb: 2,
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {imageUrls.slice(0, 4).map((url, index) => (
-            <Box
-              key={index}
-              sx={{
-                position: "relative",
-                borderRadius: 1,
-                overflow: "hidden",
-                aspectRatio: "1",
-                bgcolor: "action.hover",
-              }}
-            >
-              <Box
-                component="img"
-                src={url}
-                alt={`Image ${index + 1}`}
-                loading="lazy"
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
-              {index === 3 && imageUrls && imageUrls.length > 4 && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    bgcolor: "rgba(0,0,0,0.6)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Typography variant="h6" color="white">
-                    +{imageUrls.length - 4}
-                  </Typography>
-                </Box>
-              )}
-            </Box>
-          ))}
-        </Box>
+        <InfiniteImageCarousel images={imageUrls} />
       )}
     </>
   );
