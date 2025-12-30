@@ -1,13 +1,40 @@
 import {
   collection,
   addDoc,
+  doc,
+  getDoc,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { ThreadCreateInput } from "../types";
+import { ThreadCreateInput, Thread } from "../types";
 import { buildTitleTokens, normalizeTitleForSearch } from "../search/utils/titleSearch";
 
 const THREADS_COLLECTION = "threads";
+
+/**
+ * Gets a single thread by ID.
+ * 
+ * @param threadId - The ID of the thread to fetch
+ * @returns The thread data or null if not found
+ */
+export async function getThread(threadId: string): Promise<Thread | null> {
+  try {
+    const docRef = doc(db, THREADS_COLLECTION, threadId);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      return null;
+    }
+
+    return {
+      id: docSnap.id,
+      ...docSnap.data(),
+    } as Thread;
+  } catch (error) {
+    console.error("Error fetching thread:", error);
+    return null;
+  }
+}
 
 /**
  * Creates a new thread in Firestore.
@@ -69,3 +96,4 @@ export async function createThread(
     throw new Error("Failed to create thread. Please try again later.");
   }
 }
+

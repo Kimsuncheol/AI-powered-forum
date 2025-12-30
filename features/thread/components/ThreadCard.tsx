@@ -88,6 +88,8 @@ function ThreadCard({ thread, onClick }: ThreadCardProps) {
             createdAt={thread.createdAt}
             isNSFW={isNSFW}
             location={thread.location}
+            threadId={thread.id}
+            threadTitle={thread.title}
           />
 
           <NSFWOverlay shouldBlur={shouldBlur} onReveal={handleRevealNSFW}>

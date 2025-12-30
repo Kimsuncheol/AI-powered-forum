@@ -29,6 +29,8 @@ export default function ThreadCard({ thread }: ThreadCardProps) {
           <ThreadCardHeader
             authorName={thread.authorName}
             createdAt={thread.createdAt}
+            threadId={thread.id}
+            threadTitle={thread.title}
           />
           <ThreadCardContent title={thread.title} content={thread.content} />
           <ThreadCardFooter
