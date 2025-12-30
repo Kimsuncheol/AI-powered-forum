@@ -47,6 +47,7 @@ export default function InfiniteImageCarousel({
       onClick={(e) => e.stopPropagation()}
     >
       <SwiperComponent
+        direction="horizontal"
         spaceBetween={0}
         slidesPerView={1}
         loop={images.length > 1}
