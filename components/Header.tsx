@@ -13,7 +13,7 @@ import { usePathname } from "next/navigation";
 import SignInModal from "@/features/auth/components/SignInModal";
 import SignUpModal from "@/features/auth/components/SignUpModal";
 import SearchModal from "@/features/search/components/SearchModal";
-import { useMediaQuery } from "@mui/material";
+import { useDevice } from "@/context/DeviceContext";
 
 import Logo from "./header/Logo";
 import SearchBar from "./header/SearchBar";
@@ -31,7 +31,8 @@ export default function Header() {
   const [chatOpen, setChatOpen] = useState(false);
 
   const pathname = usePathname();
-  const isMobile = useMediaQuery("(min-width:430px)");
+  const device = useDevice();
+  const isMobile = device.isMobile;
 
   if (pathname === "/signin" || pathname === "/signup") {
     return null;

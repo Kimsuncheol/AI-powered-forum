@@ -27,6 +27,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 
+import { DeviceProvider } from "@/context/DeviceContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,10 +41,12 @@ export default function RootLayout({
           <SettingsProvider>
             <ToastContainer position="top-right" autoClose={3000} />
             <ThemeProvider>
-              <AppRouterCacheProvider>
-                <Header />
-                <Container maxWidth="xl" sx={{ py: 2 }}>{children}</Container>
-              </AppRouterCacheProvider>
+              <DeviceProvider>
+                <AppRouterCacheProvider>
+                  <Header />
+                  <Container maxWidth="xl" sx={{ py: 2 }}>{children}</Container>
+                </AppRouterCacheProvider>
+              </DeviceProvider>
             </ThemeProvider>
           </SettingsProvider>
         </AuthProvider>

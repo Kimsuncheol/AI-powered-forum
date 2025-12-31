@@ -14,8 +14,6 @@ import {
   Typography,
   Box,
   Divider,
-  useTheme,
-  useMediaQuery,
   CircularProgress,
   DialogActions,
   Button,
@@ -27,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { useSearch } from "../hooks/useSearch";
 import { useRecentSearches } from "../hooks/useRecentSearches";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
+import { useDevice } from "@/context/DeviceContext";
 
 interface SearchModalProps {
   open: boolean;
@@ -34,8 +33,8 @@ interface SearchModalProps {
 }
 
 export default function SearchModal({ open, onClose }: SearchModalProps) {
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const device = useDevice();
+  const fullScreen = device.isMobile;
   const router = useRouter();
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query, 300);

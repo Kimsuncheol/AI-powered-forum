@@ -34,11 +34,10 @@ export default function SearchBar({ onClick }: SearchBarProps) {
         flexGrow: 1,
         maxWidth: 640,
         border: "1px solid",
-        borderColor: "divider",
+        borderColor: "primary.main",
         boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         "&:hover": {
-          borderColor: "primary.main",
           boxShadow: "0 4px 16px rgba(33, 150, 243, 0.15)",
           background: "linear-gradient(135deg, rgba(33, 150, 243, 0.08) 0%, rgba(33, 150, 243, 0.04) 100%)",
           transform: "translateY(-1px)",
@@ -82,7 +81,8 @@ export default function SearchBar({ onClick }: SearchBarProps) {
           onClick={handleAiClick}
           sx={{
             ml: 1,
-            bgcolor: "primary.main",            color: "white",
+            bgcolor: "primary.main",            
+            color: "white",
             boxShadow: "0 2px 8px rgba(33, 150, 243, 0.3)",
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             "&:hover": { 

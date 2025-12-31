@@ -21,6 +21,7 @@ import { ChatModalHeader } from "./ChatModalHeader";
 import { ChatRoomWithParticipant } from "../types";
 import { useAuth } from "@/context/AuthContext";
 import { markAsRead } from "../repositories/chatRepository";
+import { useDevice } from "@/context/DeviceContext";
 
 interface ChatModalProps {
   open: boolean;
@@ -33,6 +34,9 @@ export function ChatModal({ open, onClose }: ChatModalProps) {
     useState<ChatRoomWithParticipant | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const device = useDevice();
+  const isMobileOS = device.isIOS || device.isAndroid;
+
 
   const handleSelectRoom = (room: ChatRoomWithParticipant) => {
     setSelectedRoom(room);
@@ -58,18 +62,18 @@ export function ChatModal({ open, onClose }: ChatModalProps) {
 
   return (
     <Drawer
-      anchor={isMobile ? "bottom" : "right"}
+      anchor={isMobileOS ? "bottom" : "right"}
       open={open}
       onClose={handleClose}
       PaperProps={{
         sx: {
-          width: isMobile ? "100%" : 380,
-          height: isMobile ? "40vh" : "60vh",
-          borderRadius: isMobile ? "16px 16px 0 0" : 3,
-          bottom: isMobile ? 0 : 20,
-          right: isMobile ? 0 : 20,
+          width: isMobileOS ? "100%" : "40vh",
+          height: isMobileOS ? "40vh" : "60vh",
+          borderRadius: isMobileOS ? "16px 16px 0 0" : 3,
+          bottom: isMobileOS ? 0 : 20,
+          right: isMobileOS ? 0 : 20,
           top: "auto",
-          m: isMobile ? 0 : 2,
+          m: isMobileOS ? 0 : 2,
           display: "flex",
           flexDirection: "column",
           boxShadow: theme.shadows[10],

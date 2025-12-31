@@ -17,7 +17,7 @@ import ThreadHeader from "@/features/thread/components/detail/ThreadHeader";
 import ThreadContent from "@/features/thread/components/detail/ThreadContent";
 import ThreadLocation from "@/features/thread/components/detail/ThreadLocation";
 import ThreadAISummary from "@/features/thread/components/detail/ThreadAISummary";
-import { useMediaQuery } from "@mui/material";
+import { useDevice } from "@/context/DeviceContext";
 
 export default function ThreadDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,14 +25,9 @@ export default function ThreadDetailPage() {
   const [thread, setThread] = useState<Thread | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const isMobile = useMediaQuery("(max-width:600px)");
-  const [isMobileOS, setIsMobileOS] = useState(false);
-
-  useEffect(() => {
-    const userAgent = navigator.userAgent || navigator.vendor;
-    const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(userAgent);
-    setIsMobileOS(isMobileDevice);
-  }, []);
+  const device = useDevice();
+  const isMobile = device.isMobile;
+  const isMobileOS = device.isIOS || device.isAndroid;
 
   useEffect(() => {
     async function fetchData() {
